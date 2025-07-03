@@ -2,3 +2,4 @@ rootProject.name = 'parking-reservation'
 
 includeBuild('parking-eureka-server')
 includeBuild('parking-gateway')
+includeBuild('parking-user-service')

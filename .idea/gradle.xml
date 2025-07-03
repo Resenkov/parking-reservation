@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
@@ -16,6 +17,11 @@
                   <project path="$PROJECT_DIR$/parking-gateway" />
                 </projects>
               </build>
+              <build path="$PROJECT_DIR$/parking-user-service" name="parking-user-service">
+                <projects>
+                  <project path="$PROJECT_DIR$/parking-user-service" />
+                </projects>
+              </build>
             </builds>
           </compositeBuild>
         </compositeConfiguration>
@@ -25,6 +31,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/parking-eureka-server" />
             <option value="$PROJECT_DIR$/parking-gateway" />
+            <option value="$PROJECT_DIR$/parking-user-service" />
           </set>
         </option>
       </GradleProjectSettings>
