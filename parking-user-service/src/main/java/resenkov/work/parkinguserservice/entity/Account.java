@@ -26,7 +26,7 @@ public class Account {
 
     private Status status;
 
-    enum Status{
+    public enum Status{
         BLOCKED,
         OPEN,
         CLOSED

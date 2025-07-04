@@ -1,8 +1,9 @@
 package resenkov.work.parkinguserservice.dto;
 
-public class UserDTO {
-    private String firstName;
-    private String lastName;
+import lombok.Data;
+
+@Data
+public class AuthRequest {
     private String email;
     private String password;
 }
