@@ -18,12 +18,14 @@ public class UserController {
     }
 
     @GetMapping("/email")
-    public ResponseEntity<User> findByEmail(String email){
-        if (!email.isEmpty()){
-            log.info("email found");
-            return ResponseEntity.ok(service.findByEmail(email));
+    public ResponseEntity<User> findByEmail(
+            @RequestParam String email,
+            @RequestHeader(value = "X-User-Email", required = false) String authEmail) {
+        if (authEmail != null && !authEmail.equals(email)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(service.findByEmail(email));
     }
 
     @PostMapping("/add")

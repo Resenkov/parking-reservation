@@ -17,6 +17,11 @@
                   <project path="$PROJECT_DIR$/parking-gateway" />
                 </projects>
               </build>
+              <build path="$PROJECT_DIR$/parking-reservation-service" name="parking-reservation-service">
+                <projects>
+                  <project path="$PROJECT_DIR$/parking-reservation-service" />
+                </projects>
+              </build>
               <build path="$PROJECT_DIR$/parking-user-service" name="parking-user-service">
                 <projects>
                   <project path="$PROJECT_DIR$/parking-user-service" />
@@ -31,6 +36,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/parking-eureka-server" />
             <option value="$PROJECT_DIR$/parking-gateway" />
+            <option value="$PROJECT_DIR$/parking-reservation-service" />
             <option value="$PROJECT_DIR$/parking-user-service" />
           </set>
         </option>

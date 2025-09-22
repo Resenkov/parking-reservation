@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/parking-reservation-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/parking-reservation-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/parking-user-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/parking-user-service.main.iml" />
     </modules>
   </component>
