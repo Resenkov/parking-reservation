@@ -1,0 +1,233 @@
+{
+  "info": {
+    "name": "Parking Reservation API",
+    "_postman_id": "b7c2a51f-1cb8-4e47-9d7c-25b802b8b39f",
+    "description": "Коллекция для проверки контроллеров user-service и reservation-service через gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register user (returns JWT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/user/add",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["user", "add"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ivan\",\n  \"lastName\": \"Petrov\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) {",
+                  "  pm.collectionVariables.set('authToken', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/auth/login",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) {",
+                  "  pm.collectionVariables.set('authToken', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get user by email",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/user/email?email={{userEmail}}",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["user", "email"],
+              "query": [
+                { "key": "email", "value": "{{userEmail}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/user/update",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["user", "update"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{userId}},\n  \"firstName\": \"Ivan\",\n  \"lastName\": \"Petrov\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/user/delete/{{userId}}",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["user", "delete", "{{userId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Get account by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/account/{{accountId}}",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["account", "{{accountId}}"]
+            }
+          }
+        },
+        {
+          "name": "Deposit to account (by token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/account/deposit",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["account", "deposit"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100.00\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Book reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/reservation/book",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["reservation", "book"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"spotCode\": \"A-1\",\n  \"from\": \"2024-01-01T10:00:00\",\n  \"to\": \"2024-01-01T12:00:00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "My reservations",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/reservation/my",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["reservation", "my"]
+            }
+          }
+        },
+        {
+          "name": "Cancel reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/reservation/cancel/{{reservationId}}",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["reservation", "cancel", "{{reservationId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "gatewayUrl", "value": "http://localhost:8765" },
+    { "key": "userEmail", "value": "user@example.com" },
+    { "key": "userPassword", "value": "password" },
+    { "key": "userId", "value": "1" },
+    { "key": "accountId", "value": "1" },
+    { "key": "reservationId", "value": "1" },
+    { "key": "authToken", "value": "" }
+  ]
+}
