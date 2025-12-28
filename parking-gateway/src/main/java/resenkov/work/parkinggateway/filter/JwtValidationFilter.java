@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -33,12 +34,11 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        List<String> authHeaders = request.getHeaders().get("Authorization");
-        if (authHeaders == null || authHeaders.isEmpty()) {
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || authHeader.isBlank()) {
             return unauthorizedResponse(exchange, "Missing Authorization header");
         }
 
-        String authHeader = authHeaders.get(0);
         if (!authHeader.startsWith("Bearer ")) {
             return unauthorizedResponse(exchange, "Invalid Authorization format");
         }
@@ -52,7 +52,7 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
                     .getPayload();
 
             ServerHttpRequest modifiedRequest = request.mutate()
-                    .headers(headers -> headers.set("Authorization", authHeader))
+                    .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, authHeader))
                     .header("X-User-Email", claims.getSubject())
                     .build();
 
