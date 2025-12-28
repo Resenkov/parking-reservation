@@ -45,12 +45,9 @@ public class UserController {
 
     @PostMapping("/add")
     public ResponseEntity<AuthResponse> addUser(@RequestBody RegistrationRequest request) {
-        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            User user = service.registerUser(request);
-            String token = jwtUtils.generateToken(user);
-            return ResponseEntity.ok(new AuthResponse(token));
-        }
-        return new ResponseEntity<> (HttpStatus.NOT_ACCEPTABLE);
+        User user = service.registerUser(request);
+        String token = jwtUtils.generateToken(user);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     @PutMapping("/update")

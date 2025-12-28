@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import resenkov.work.parkinguserservice.dto.RegistrationRequest;
 import resenkov.work.parkinguserservice.entity.Account;
 import resenkov.work.parkinguserservice.entity.User;
+import resenkov.work.parkinguserservice.exception.DuplicateEmailException;
 import resenkov.work.parkinguserservice.repository.UserRepository;
 import resenkov.work.parkinguserservice.dto.UpdateUserRequest;
 
@@ -31,8 +32,14 @@ public class UserService {
     }
 
     public User registerUser(RegistrationRequest request) {
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
         if (repository.existsByEmail(request.getEmail())) {
-            throw new EntityNotFoundException();
+            throw new DuplicateEmailException(request.getEmail());
         }
         User user = new User();
         user.setFirstName(request.getFirstName());
