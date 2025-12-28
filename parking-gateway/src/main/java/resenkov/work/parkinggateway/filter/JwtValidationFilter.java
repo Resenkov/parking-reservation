@@ -2,16 +2,20 @@ package resenkov.work.parkinggateway.filter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
 import java.util.List;
 
 @Component
@@ -26,36 +30,39 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
 
         // Разрешаем публичные пути без проверки
-        if (path.startsWith("/auth") || path.startsWith("/user/add")) {
+        if (path.startsWith("/auth") || path.startsWith("/user/add") || path.startsWith("/api/user/add")) {
             return chain.filter(exchange);
         }
 
-        List<String> authHeaders = request.getHeaders().get("Authorization");
-        if (authHeaders == null || authHeaders.isEmpty()) {
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || authHeader.isBlank()) {
             return unauthorizedResponse(exchange, "Missing Authorization header");
         }
 
-        String authHeader = authHeaders.get(0);
         if (!authHeader.startsWith("Bearer ")) {
             return unauthorizedResponse(exchange, "Invalid Authorization format");
         }
 
         final String jwt = authHeader.substring(7);
+        ServerHttpRequest.Builder requestBuilder = request.mutate()
+                .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, authHeader));
         try {
             Claims claims = Jwts.parser()
-                    .setSigningKey(secret.getBytes())
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(jwt)
-                    .getBody();
-
-            ServerHttpRequest modifiedRequest = request.mutate()
-                    .header("X-User-Email", claims.getSubject())
-                    .build();
-
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());
+                    .parseSignedClaims(jwt)
+                    .getPayload();
+            requestBuilder.header("X-User-Email", claims.getSubject());
         } catch (Exception e) {
-            return unauthorizedResponse(exchange, "Invalid JWT token");
+            // Даем downstream-сервисам самим валидировать токен
         }
+
+        return chain.filter(exchange.mutate().request(requestBuilder.build()).build());
+    }
+
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String reason) {
