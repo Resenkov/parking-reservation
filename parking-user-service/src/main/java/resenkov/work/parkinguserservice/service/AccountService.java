@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import resenkov.work.parkinguserservice.entity.Account;
+import resenkov.work.parkinguserservice.entity.AccountStatus;
 import resenkov.work.parkinguserservice.repository.AccountRepository;
 
 import java.math.BigDecimal;
@@ -27,7 +28,7 @@ public class AccountService {
     public Account createDefaultAccount() {
         Account account = new Account();
         account.setBalance(BigDecimal.ZERO);
-        account.setStatus(Account.Status.OPEN);
+        account.setStatus(AccountStatus.OPEN);
         return repository.save(account);
     }
 
