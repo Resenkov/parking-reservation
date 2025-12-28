@@ -44,22 +44,20 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
         }
 
         final String jwt = authHeader.substring(7);
+        ServerHttpRequest.Builder requestBuilder = request.mutate()
+                .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, authHeader));
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(jwt)
                     .getPayload();
-
-            ServerHttpRequest modifiedRequest = request.mutate()
-                    .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, authHeader))
-                    .header("X-User-Email", claims.getSubject())
-                    .build();
-
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());
+            requestBuilder.header("X-User-Email", claims.getSubject());
         } catch (Exception e) {
-            return unauthorizedResponse(exchange, "Invalid JWT token");
+            // Даем downstream-сервисам самим валидировать токен
         }
+
+        return chain.filter(exchange.mutate().request(requestBuilder.build()).build());
     }
 
     private SecretKey getSigningKey() {
