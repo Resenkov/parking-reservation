@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parking Reservation</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div>
+        <h1>Parking Reservation</h1>
+        <p class="subtitle">Мини‑клиент для регистрации, входа и бронирования.</p>
+      </div>
+      <div class="token-box">
+        <span>Токен:</span>
+        <code id="token-preview">нет</code>
+        <button id="logout-btn" class="secondary">Выйти</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Настройки API</h2>
+      <div class="grid">
+        <label class="field">
+          <span>Gateway URL</span>
+          <input id="gateway-url" type="text" value="http://localhost:8765" />
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Регистрация</h2>
+      <form id="register-form" class="grid">
+        <label class="field">
+          <span>Имя</span>
+          <input name="firstName" type="text" required />
+        </label>
+        <label class="field">
+          <span>Фамилия</span>
+          <input name="lastName" type="text" required />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input name="email" type="email" required />
+        </label>
+        <label class="field">
+          <span>Пароль</span>
+          <input name="password" type="password" required />
+        </label>
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Вход</h2>
+      <form id="login-form" class="grid">
+        <label class="field">
+          <span>Email</span>
+          <input name="email" type="email" required />
+        </label>
+        <label class="field">
+          <span>Пароль</span>
+          <input name="password" type="password" required />
+        </label>
+        <button type="submit">Войти</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Аккаунт</h2>
+      <div class="grid">
+        <button id="account-load" class="secondary">Показать счёт</button>
+        <form id="deposit-form" class="inline">
+          <input name="amount" type="number" min="0.01" step="0.01" placeholder="Сумма" required />
+          <button type="submit">Пополнить</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Бронирование</h2>
+      <form id="reservation-form" class="grid">
+        <label class="field">
+          <span>Код места</span>
+          <input name="spotCode" type="text" placeholder="A-1" required />
+        </label>
+        <label class="field">
+          <span>С</span>
+          <input name="from" type="datetime-local" required />
+        </label>
+        <label class="field">
+          <span>До</span>
+          <input name="to" type="datetime-local" required />
+        </label>
+        <button type="submit">Забронировать</button>
+      </form>
+      <div class="grid">
+        <button id="reservation-list" class="secondary">Мои брони</button>
+        <form id="reservation-cancel-form" class="inline">
+          <input name="reservationId" type="number" min="1" placeholder="ID брони" required />
+          <button type="submit" class="danger">Отменить</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Логи</h2>
+      <pre id="log" class="log"></pre>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
