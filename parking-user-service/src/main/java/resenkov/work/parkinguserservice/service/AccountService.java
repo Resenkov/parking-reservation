@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import resenkov.work.parkinguserservice.entity.Account;
 import resenkov.work.parkinguserservice.repository.AccountRepository;
 
+import java.math.BigDecimal;
+
 @Service
 @Transactional
 public class AccountService {
@@ -20,5 +22,21 @@ public class AccountService {
     public Account findById(Long id) {
         return repository.findById(id).orElseThrow(
                 ()->new EntityNotFoundException("Account not found"));
+    }
+
+    public Account createDefaultAccount() {
+        Account account = new Account();
+        account.setBalance(BigDecimal.ZERO);
+        account.setStatus(Account.Status.OPEN);
+        return repository.save(account);
+    }
+
+    public Account addBalance(Long id, BigDecimal amount) {
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        Account account = findById(id);
+        account.setBalance(account.getBalance().add(amount));
+        return repository.save(account);
     }
 }
