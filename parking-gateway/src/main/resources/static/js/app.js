@@ -3,8 +3,6 @@ const tokenPreview = document.getElementById('token-preview');
 const logoutBtn = document.getElementById('logout-btn');
 const logEl = document.getElementById('log');
 
-const getGatewayUrl = () => document.getElementById('gateway-url').value.replace(/\/$/, '');
-
 const setToken = (token) => {
   if (token) {
     localStorage.setItem(tokenKey, token);
@@ -36,7 +34,7 @@ const apiFetch = async (path, options = {}) => {
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  const response = await fetch(`${getGatewayUrl()}${path}`, {
+  const response = await fetch(path, {
     ...options,
     headers
   });

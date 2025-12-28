@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Parking Reservation</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
   <main class="container">
@@ -19,16 +19,6 @@
         <button id="logout-btn" class="secondary">Выйти</button>
       </div>
     </header>
-
-    <section class="panel">
-      <h2>Настройки API</h2>
-      <div class="grid">
-        <label class="field">
-          <span>Gateway URL</span>
-          <input id="gateway-url" type="text" value="http://localhost:8765" />
-        </label>
-      </div>
-    </section>
 
     <section class="panel">
       <h2>Регистрация</h2>
@@ -111,6 +101,6 @@
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>
