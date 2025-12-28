@@ -52,6 +52,7 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
                     .getPayload();
 
             ServerHttpRequest modifiedRequest = request.mutate()
+                    .headers(headers -> headers.set("Authorization", authHeader))
                     .header("X-User-Email", claims.getSubject())
                     .build();
 
