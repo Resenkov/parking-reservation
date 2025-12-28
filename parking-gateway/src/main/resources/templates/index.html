@@ -11,7 +11,7 @@
     <header class="header">
       <div>
         <h1>Parking Reservation</h1>
-        <p class="subtitle">Мини‑клиент для регистрации, входа и бронирования.</p>
+        <p class="subtitle">Главная панель: аккаунт и бронирования.</p>
       </div>
       <div class="token-box">
         <span>Токен:</span>
@@ -20,43 +20,10 @@
       </div>
     </header>
 
-    <section class="panel">
-      <h2>Регистрация</h2>
-      <form id="register-form" class="grid">
-        <label class="field">
-          <span>Имя</span>
-          <input name="firstName" type="text" required />
-        </label>
-        <label class="field">
-          <span>Фамилия</span>
-          <input name="lastName" type="text" required />
-        </label>
-        <label class="field">
-          <span>Email</span>
-          <input name="email" type="email" required />
-        </label>
-        <label class="field">
-          <span>Пароль</span>
-          <input name="password" type="password" required />
-        </label>
-        <button type="submit">Зарегистрироваться</button>
-      </form>
-    </section>
-
-    <section class="panel">
-      <h2>Вход</h2>
-      <form id="login-form" class="grid">
-        <label class="field">
-          <span>Email</span>
-          <input name="email" type="email" required />
-        </label>
-        <label class="field">
-          <span>Пароль</span>
-          <input name="password" type="password" required />
-        </label>
-        <button type="submit">Войти</button>
-      </form>
-    </section>
+    <nav class="nav">
+      <a href="/login">Вход</a>
+      <a href="/register">Регистрация</a>
+    </nav>
 
     <section class="panel">
       <h2>Аккаунт</h2>
@@ -101,6 +68,7 @@
     </section>
   </main>
 
-  <script src="/js/app.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/home.js"></script>
 </body>
 </html>
