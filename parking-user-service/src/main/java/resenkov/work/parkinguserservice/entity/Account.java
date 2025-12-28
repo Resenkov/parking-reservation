@@ -24,11 +24,6 @@ public class Account {
 
     private BigDecimal balance;
 
-    private Status status;
-
-    public enum Status{
-        BLOCKED,
-        OPEN,
-        CLOSED
-    }
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
 }

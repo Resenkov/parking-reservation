@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import resenkov.work.parkinguserservice.entity.User;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -35,6 +36,11 @@ public class JwtUtils {
                 .map(GrantedAuthority::getAuthority) // "ROLE_USER", "ROLE_ADMIN", ...
                 .collect(Collectors.toList());
         claims.put("roles", roles);
+        if (userDetails instanceof User user) {
+            if (user.getAccountId() != null) {
+                claims.put("accountId", user.getAccountId().getId());
+            }
+        }
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -53,6 +59,23 @@ public class JwtUtils {
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public Long extractAccountId(String token) {
+        return extractClaim(token, claims -> {
+            Object value = claims.get("accountId");
+            if (value == null) {
+                return null;
+            }
+            if (value instanceof Number number) {
+                return number.longValue();
+            }
+            try {
+                return Long.parseLong(value.toString());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        });
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
