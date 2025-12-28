@@ -2,6 +2,8 @@ package resenkov.work.parkinggateway.filter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
 import java.util.List;
 
 @Component
@@ -43,10 +46,10 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
         final String jwt = authHeader.substring(7);
         try {
             Claims claims = Jwts.parser()
-                    .setSigningKey(secret.getBytes())
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(jwt)
-                    .getBody();
+                    .parseSignedClaims(jwt)
+                    .getPayload();
 
             ServerHttpRequest modifiedRequest = request.mutate()
                     .header("X-User-Email", claims.getSubject())
@@ -56,6 +59,11 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
         } catch (Exception e) {
             return unauthorizedResponse(exchange, "Invalid JWT token");
         }
+    }
+
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String reason) {
