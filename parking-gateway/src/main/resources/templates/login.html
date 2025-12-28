@@ -8,39 +8,50 @@
 </head>
 <body>
   <main class="container">
-    <header class="header">
-      <div>
-        <h1>Вход</h1>
-        <p class="subtitle">Войдите, чтобы получить JWT.</p>
-      </div>
-      <div class="token-box">
-        <span>Токен:</span>
-        <code id="token-preview">нет</code>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark">SP</span>
+        <span>SmartPark</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/">Главная</a>
+        <a href="/register">Регистрация</a>
         <button id="logout-btn" class="secondary">Выйти</button>
-      </div>
+      </nav>
     </header>
 
-    <nav class="nav">
-      <a href="/">Главная</a>
-      <a href="/register">Регистрация</a>
-    </nav>
-
-    <section class="panel">
-      <form id="login-form" class="grid">
-        <label class="field">
-          <span>Email</span>
-          <input name="email" type="email" required />
-        </label>
-        <label class="field">
-          <span>Пароль</span>
-          <input name="password" type="password" required />
-        </label>
-        <button type="submit">Войти</button>
-      </form>
+    <section class="auth-layout">
+      <div>
+        <h1>Добро пожаловать обратно</h1>
+        <p class="subtitle">Войдите, чтобы управлять бронированиями и балансом.</p>
+        <div class="token-box">
+          <span>Текущий токен:</span>
+          <code id="token-preview">нет</code>
+        </div>
+      </div>
+      <div class="auth-card">
+        <h2>Вход</h2>
+        <p class="muted">Введите email и пароль, чтобы продолжить.</p>
+        <form id="login-form" class="grid">
+          <label class="field">
+            <span>Email</span>
+            <input name="email" type="email" placeholder="name@example.com" required />
+          </label>
+          <label class="field">
+            <span>Пароль</span>
+            <input name="password" type="password" placeholder="••••••••" required />
+          </label>
+          <button type="submit">Войти</button>
+        </form>
+        <p class="muted">Нет аккаунта? <a href="/register">Создать</a></p>
+      </div>
     </section>
 
-    <section class="panel">
-      <h2>Логи</h2>
+    <section class="section">
+      <div class="section-title">
+        <h2>Логи</h2>
+        <span class="muted">Ответы сервиса</span>
+      </div>
       <pre id="log" class="log"></pre>
     </section>
   </main>

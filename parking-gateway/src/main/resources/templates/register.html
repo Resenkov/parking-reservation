@@ -8,47 +8,58 @@
 </head>
 <body>
   <main class="container">
-    <header class="header">
-      <div>
-        <h1>Регистрация</h1>
-        <p class="subtitle">Создайте аккаунт и получите токен.</p>
-      </div>
-      <div class="token-box">
-        <span>Токен:</span>
-        <code id="token-preview">нет</code>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark">SP</span>
+        <span>SmartPark</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/">Главная</a>
+        <a href="/login">Вход</a>
         <button id="logout-btn" class="secondary">Выйти</button>
-      </div>
+      </nav>
     </header>
 
-    <nav class="nav">
-      <a href="/">Главная</a>
-      <a href="/login">Вход</a>
-    </nav>
-
-    <section class="panel">
-      <form id="register-form" class="grid">
-        <label class="field">
-          <span>Имя</span>
-          <input name="firstName" type="text" required />
-        </label>
-        <label class="field">
-          <span>Фамилия</span>
-          <input name="lastName" type="text" required />
-        </label>
-        <label class="field">
-          <span>Email</span>
-          <input name="email" type="email" required />
-        </label>
-        <label class="field">
-          <span>Пароль</span>
-          <input name="password" type="password" required />
-        </label>
-        <button type="submit">Зарегистрироваться</button>
-      </form>
+    <section class="auth-layout">
+      <div>
+        <h1>Создайте профиль SmartPark</h1>
+        <p class="subtitle">Регистрация занимает меньше минуты — и вы готовы бронировать.</p>
+        <div class="token-box">
+          <span>Текущий токен:</span>
+          <code id="token-preview">нет</code>
+        </div>
+      </div>
+      <div class="auth-card">
+        <h2>Регистрация</h2>
+        <p class="muted">Заполните данные, чтобы начать пользоваться сервисом.</p>
+        <form id="register-form" class="grid">
+          <label class="field">
+            <span>Имя</span>
+            <input name="firstName" type="text" placeholder="Иван" required />
+          </label>
+          <label class="field">
+            <span>Фамилия</span>
+            <input name="lastName" type="text" placeholder="Иванов" required />
+          </label>
+          <label class="field">
+            <span>Email</span>
+            <input name="email" type="email" placeholder="name@example.com" required />
+          </label>
+          <label class="field">
+            <span>Пароль</span>
+            <input name="password" type="password" placeholder="••••••••" required />
+          </label>
+          <button type="submit">Создать аккаунт</button>
+        </form>
+        <p class="muted">Уже зарегистрированы? <a href="/login">Войти</a></p>
+      </div>
     </section>
 
-    <section class="panel">
-      <h2>Логи</h2>
+    <section class="section">
+      <div class="section-title">
+        <h2>Логи</h2>
+        <span class="muted">Ответы сервиса</span>
+      </div>
       <pre id="log" class="log"></pre>
     </section>
   </main>

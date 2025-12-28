@@ -8,25 +8,50 @@
 </head>
 <body>
   <main class="container">
-    <header class="header">
-      <div>
-        <h1>Parking Reservation</h1>
-        <p class="subtitle">Главная панель: аккаунт и бронирования.</p>
-      </div>
-      <div class="token-box">
-        <span>Токен:</span>
-        <code id="token-preview">нет</code>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark">SP</span>
+        <span>SmartPark</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/login">Вход</a>
+        <a href="/register">Регистрация</a>
         <button id="logout-btn" class="secondary">Выйти</button>
-      </div>
+      </nav>
     </header>
 
-    <nav class="nav">
-      <a href="/login">Вход</a>
-      <a href="/register">Регистрация</a>
-    </nav>
+    <section class="hero">
+      <div>
+        <h1>Умный паркинг без лишних кликов</h1>
+        <p class="subtitle">
+          Бронируйте парковочные места заранее, отслеживайте баланс и управляйте бронированиями в одном интерфейсе.
+        </p>
+        <div class="hero-actions">
+          <a href="/register"><button>Создать аккаунт</button></a>
+          <a href="/login"><button class="secondary">Уже есть аккаунт</button></a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <strong>⚡ Быстрое бронирование</strong>
+          <p class="subtitle">Заполняйте минимум полей и получайте подтверждение сразу.</p>
+        </div>
+        <div class="stat-card">
+          <strong>🔐 Безопасный доступ</strong>
+          <p class="subtitle">JWT-аутентификация и прозрачная история операций.</p>
+        </div>
+        <div class="token-box">
+          <span>Текущий токен:</span>
+          <code id="token-preview">нет</code>
+        </div>
+      </div>
+    </section>
 
-    <section class="panel">
-      <h2>Аккаунт</h2>
+    <section class="section">
+      <div class="section-title">
+        <h2>Аккаунт</h2>
+        <span class="muted">Пополнение и баланс</span>
+      </div>
       <div class="grid">
         <button id="account-load" class="secondary">Показать счёт</button>
         <form id="deposit-form" class="inline">
@@ -36,8 +61,11 @@
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Бронирование</h2>
+    <section class="section">
+      <div class="section-title">
+        <h2>Бронирование</h2>
+        <span class="muted">Планируйте поездку заранее</span>
+      </div>
       <form id="reservation-form" class="grid">
         <label class="field">
           <span>Код места</span>
@@ -62,10 +90,35 @@
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Логи</h2>
+    <section class="section">
+      <div class="section-title">
+        <h2>Поддержка</h2>
+        <span class="muted">История действий и ответы сервиса</span>
+      </div>
       <pre id="log" class="log"></pre>
     </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Почему SmartPark</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <strong>Прозрачные цены</strong>
+          <p class="muted">Динамическая стоимость отображается заранее.</p>
+        </div>
+        <div class="card">
+          <strong>История бронирований</strong>
+          <p class="muted">Все операции доступны в одном окне.</p>
+        </div>
+        <div class="card">
+          <strong>Быстрый доступ</strong>
+          <p class="muted">Авторизуйтесь один раз и пользуйтесь сервисом.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">SmartPark · городская парковка без стресса</div>
   </main>
 
   <script src="/js/common.js"></script>
