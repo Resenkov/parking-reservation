@@ -17,9 +17,9 @@
               { "key": "Content-Type", "value": "application/json" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/user/add",
+              "raw": "{{gatewayUrl}}/api/user/add",
               "host": ["{{gatewayUrl}}"],
-              "path": ["user", "add"]
+              "path": ["api", "user", "add"]
             },
             "body": {
               "mode": "raw",
@@ -86,9 +86,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/user/email?email={{userEmail}}",
+              "raw": "{{gatewayUrl}}/api/user/email?email={{userEmail}}",
               "host": ["{{gatewayUrl}}"],
-              "path": ["user", "email"],
+              "path": ["api", "user", "email"],
               "query": [
                 { "key": "email", "value": "{{userEmail}}" }
               ]
@@ -104,9 +104,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/user/update",
+              "raw": "{{gatewayUrl}}/api/user/update",
               "host": ["{{gatewayUrl}}"],
-              "path": ["user", "update"]
+              "path": ["api", "user", "update"]
             },
             "body": {
               "mode": "raw",
@@ -122,9 +122,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/user/delete/{{userId}}",
+              "raw": "{{gatewayUrl}}/api/user/delete/{{userId}}",
               "host": ["{{gatewayUrl}}"],
-              "path": ["user", "delete", "{{userId}}"]
+              "path": ["api", "user", "delete", "{{userId}}"]
             }
           }
         }
@@ -141,9 +141,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/account/{{accountId}}",
+              "raw": "{{gatewayUrl}}/api/account/{{accountId}}",
               "host": ["{{gatewayUrl}}"],
-              "path": ["account", "{{accountId}}"]
+              "path": ["api", "account", "{{accountId}}"]
             }
           }
         },
@@ -156,9 +156,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/account/deposit",
+              "raw": "{{gatewayUrl}}/api/account/deposit",
               "host": ["{{gatewayUrl}}"],
-              "path": ["account", "deposit"]
+              "path": ["api", "account", "deposit"]
             },
             "body": {
               "mode": "raw",
@@ -180,9 +180,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/reservation/book",
+              "raw": "{{gatewayUrl}}/api/reservation/book",
               "host": ["{{gatewayUrl}}"],
-              "path": ["reservation", "book"]
+              "path": ["api", "reservation", "book"]
             },
             "body": {
               "mode": "raw",
@@ -198,9 +198,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/reservation/my",
+              "raw": "{{gatewayUrl}}/api/reservation/my",
               "host": ["{{gatewayUrl}}"],
-              "path": ["reservation", "my"]
+              "path": ["api", "reservation", "my"]
             }
           }
         },
@@ -212,9 +212,9 @@
               { "key": "Authorization", "value": "Bearer {{authToken}}" }
             ],
             "url": {
-              "raw": "{{gatewayUrl}}/reservation/cancel/{{reservationId}}",
+              "raw": "{{gatewayUrl}}/api/reservation/cancel/{{reservationId}}",
               "host": ["{{gatewayUrl}}"],
-              "path": ["reservation", "cancel", "{{reservationId}}"]
+              "path": ["api", "reservation", "cancel", "{{reservationId}}"]
             }
           }
         }

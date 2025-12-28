@@ -29,7 +29,7 @@ public class JwtValidationFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
 
         // Разрешаем публичные пути без проверки
-        if (path.startsWith("/auth") || path.startsWith("/user/add")) {
+        if (path.startsWith("/auth") || path.startsWith("/user/add") || path.startsWith("/api/user/add")) {
             return chain.filter(exchange);
         }
 
