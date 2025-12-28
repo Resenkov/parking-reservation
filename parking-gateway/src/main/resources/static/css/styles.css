@@ -104,16 +104,6 @@ a {
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }
 
-.token-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: #fff;
-  padding: 18px;
-  border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-}
 
 .section {
   background: #fff;
@@ -221,14 +211,6 @@ button.danger {
   flex-wrap: wrap;
 }
 
-.log {
-  background: #0f172a;
-  color: #e2e8f0;
-  padding: 16px;
-  border-radius: 12px;
-  min-height: 120px;
-  overflow: auto;
-}
 
 code {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
