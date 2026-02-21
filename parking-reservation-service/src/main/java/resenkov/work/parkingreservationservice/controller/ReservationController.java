@@ -31,6 +31,30 @@ public class ReservationController {
         return ResponseEntity.ok(res);
     }
 
+    @PostMapping("/{id}/confirm")
+    public ResponseEntity<Reservation> confirm(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(service.confirmReservation(id, principal.getName()));
+    }
+
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<Reservation> activate(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(service.activateReservation(id, principal.getName()));
+    }
+
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<Reservation> complete(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(service.completeReservation(id, principal.getName()));
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<Reservation>> myReservations(Principal principal) {
         if (principal == null) return ResponseEntity.status(401).build();
@@ -39,9 +63,8 @@ public class ReservationController {
     }
 
     @PostMapping("/cancel/{id}")
-    public ResponseEntity<Void> cancel(@PathVariable Long id, Principal principal) {
+    public ResponseEntity<Reservation> cancel(@PathVariable Long id, Principal principal) {
         if (principal == null) return ResponseEntity.status(401).build();
-        service.cancelReservation(id, principal.getName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(service.cancelReservation(id, principal.getName()));
     }
 }
