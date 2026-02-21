@@ -1,2 +1,28 @@
 group = 'resenkov.work'
 version = '0.0.1-SNAPSHOT'
+
+def services = [
+        'parking-eureka-server',
+        'parking-gateway',
+        'parking-user-service',
+        'parking-reservation-service',
+        'parking-account-service'
+]
+
+tasks.register('buildAllJars') {
+    group = 'build'
+    description = 'Builds bootJar for all service modules'
+
+    dependsOn services.collect { service ->
+        gradle.includedBuild(service).task(':bootJar')
+    }
+}
+
+tasks.register('cleanAll') {
+    group = 'build'
+    description = 'Cleans all service modules'
+
+    dependsOn services.collect { service ->
+        gradle.includedBuild(service).task(':clean')
+    }
+}
