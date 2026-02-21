@@ -7,6 +7,11 @@
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
+              <build path="$PROJECT_DIR$/parking-account-service" name="parking-account-service">
+                <projects>
+                  <project path="$PROJECT_DIR$/parking-account-service" />
+                </projects>
+              </build>
               <build path="$PROJECT_DIR$/parking-eureka-server" name="parking-eureka-server">
                 <projects>
                   <project path="$PROJECT_DIR$/parking-eureka-server" />
@@ -34,10 +39,19 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/parking-account-service" />
             <option value="$PROJECT_DIR$/parking-eureka-server" />
             <option value="$PROJECT_DIR$/parking-gateway" />
             <option value="$PROJECT_DIR$/parking-reservation-service" />
             <option value="$PROJECT_DIR$/parking-user-service" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/parking-account-service" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/parking-account-service" />
           </set>
         </option>
       </GradleProjectSettings>
