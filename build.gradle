@@ -5,7 +5,8 @@ def services = [
         'parking-eureka-server',
         'parking-gateway',
         'parking-user-service',
-        'parking-reservation-service'
+        'parking-reservation-service',
+        'parking-account-service'
 ]
 
 tasks.register('buildAllJars') {
