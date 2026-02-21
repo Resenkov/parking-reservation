@@ -7,9 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import resenkov.work.parkingreservationservice.dto.ReservationCreatedEvent;
 import resenkov.work.parkingreservationservice.entity.ParkingSpot;
 import resenkov.work.parkingreservationservice.entity.Reservation;
+import resenkov.work.parkingreservationservice.entity.ReservationStateHistory;
 import resenkov.work.parkingreservationservice.kafka.ReservationEventProducer;
 import resenkov.work.parkingreservationservice.repository.ParkingSpotRepository;
 import resenkov.work.parkingreservationservice.repository.ReservationRepository;
+import resenkov.work.parkingreservationservice.repository.ReservationStateHistoryRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,13 +31,16 @@ public class ReservationService {
     private final ParkingSpotRepository spotRepo;
     private final ReservationRepository resRepo;
     private final ReservationEventProducer producer;
+    private final ReservationStateHistoryRepository historyRepository;
 
     public ReservationService(ParkingSpotRepository spotRepo,
                               ReservationRepository resRepo,
-                              ReservationEventProducer producer) {
+                              ReservationEventProducer producer,
+                              ReservationStateHistoryRepository historyRepository) {
         this.spotRepo = spotRepo;
         this.resRepo = resRepo;
         this.producer = producer;
+        this.historyRepository = historyRepository;
     }
 
     @Transactional
@@ -73,6 +78,8 @@ public class ReservationService {
 
 
         Reservation saved = resRepo.save(r);
+        saveHistory(saved, "BOOK_REQUEST", userEmail,
+                "spotCode=" + spotCode + ",from=" + from + ",to=" + to);
 
         ReservationCreatedEvent event = new ReservationCreatedEvent(
                 saved.getId(), saved.getSpotCode(), saved.getUserEmail(), saved.getEndTime());
@@ -96,7 +103,9 @@ public class ReservationService {
             throw new IllegalStateException("Hold time expired");
         }
         r.setStatus(Reservation.ReservationStatus.CONFIRMED);
-        return resRepo.save(r);
+        Reservation saved = resRepo.save(r);
+        saveHistory(saved, "CONFIRM", userEmail, "hold confirmed");
+        return saved;
     }
 
     @Transactional
@@ -114,7 +123,9 @@ public class ReservationService {
 
         r.setStatus(Reservation.ReservationStatus.ACTIVE);
         markSpotOccupied(r.getSpotId());
-        return resRepo.save(r);
+        Reservation saved = resRepo.save(r);
+        saveHistory(saved, "ACTIVATE", userEmail, "arrival registered");
+        return saved;
     }
 
     @Transactional
@@ -125,7 +136,9 @@ public class ReservationService {
         }
         r.setStatus(Reservation.ReservationStatus.COMPLETED);
         releaseSpot(r.getSpotId());
-        return resRepo.save(r);
+        Reservation saved = resRepo.save(r);
+        saveHistory(saved, "COMPLETE", userEmail, "session closed");
+        return saved;
     }
 
     @Transactional
@@ -151,7 +164,9 @@ public class ReservationService {
         r.setRefundAmount(refund);
 
         releaseSpot(r.getSpotId());
-        return resRepo.save(r);
+        Reservation saved = resRepo.save(r);
+        saveHistory(saved, "CANCEL", userEmail, "refundPercent=" + percent + ",refundAmount=" + refund);
+        return saved;
     }
 
     @Transactional
@@ -242,7 +257,8 @@ public class ReservationService {
         reservation.setRefundAmount(BigDecimal.ZERO);
         reservation.setRefundPercent(0);
         releaseSpot(reservation.getSpotId());
-        resRepo.save(reservation);
+        Reservation saved = resRepo.save(reservation);
+        saveHistory(saved, "EXPIRE_HOLD", "SYSTEM", "hold expired after 5 minutes");
     }
 
     private void markNoShow(Reservation reservation) {
@@ -250,7 +266,22 @@ public class ReservationService {
         reservation.setRefundAmount(BigDecimal.ZERO);
         reservation.setRefundPercent(0);
         releaseSpot(reservation.getSpotId());
-        resRepo.save(reservation);
+        Reservation saved = resRepo.save(reservation);
+        saveHistory(saved, "NO_SHOW", "SYSTEM", "arrival window missed");
+    }
+
+
+    private void saveHistory(Reservation reservation, String action, String requestedBy, String requestDetails) {
+        ReservationStateHistory history = new ReservationStateHistory();
+        history.setReservationId(reservation.getId());
+        history.setStatus(reservation.getStatus());
+        history.setAction(action);
+        history.setRequestedBy(requestedBy);
+        history.setRequestDetails(requestDetails);
+        LocalDateTime now = LocalDateTime.now();
+        history.setRequestDate(now);
+        history.setLastUpdatedAt(now);
+        historyRepository.save(history);
     }
 
 
