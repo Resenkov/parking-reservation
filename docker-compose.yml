@@ -68,12 +68,9 @@ services:
       - parking-network
 
   eureka-server:
-    image: gradle:8.10.2-jdk17
-    working_dir: /workspace/parking-eureka-server
-    command: ["bash", "-lc", "./gradlew bootRun --no-daemon"]
-    volumes:
-      - .:/workspace
-      - gradle-cache:/home/gradle/.gradle
+    build:
+      context: ./parking-eureka-server
+    image: parking-eureka-server:local
     ports:
       - "8761:8761"
     healthcheck:
@@ -85,12 +82,9 @@ services:
       - parking-network
 
   gateway:
-    image: gradle:8.10.2-jdk17
-    working_dir: /workspace/parking-gateway
-    command: ["bash", "-lc", "./gradlew bootRun --no-daemon"]
-    volumes:
-      - .:/workspace
-      - gradle-cache:/home/gradle/.gradle
+    build:
+      context: ./parking-gateway
+    image: parking-gateway:local
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     ports:
@@ -107,12 +101,9 @@ services:
       - parking-network
 
   user-service:
-    image: gradle:8.10.2-jdk17
-    working_dir: /workspace/parking-user-service
-    command: ["bash", "-lc", "./gradlew bootRun --no-daemon"]
-    volumes:
-      - .:/workspace
-      - gradle-cache:/home/gradle/.gradle
+    build:
+      context: ./parking-user-service
+    image: parking-user-service:local
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/postgres
@@ -127,12 +118,9 @@ services:
       - parking-network
 
   reservation-service:
-    image: gradle:8.10.2-jdk17
-    working_dir: /workspace/parking-reservation-service
-    command: ["bash", "-lc", "./gradlew bootRun --no-daemon"]
-    volumes:
-      - .:/workspace
-      - gradle-cache:/home/gradle/.gradle
+    build:
+      context: ./parking-reservation-service
+    image: parking-reservation-service:local
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:postgresql://service-db:5432/postgres
@@ -156,4 +144,3 @@ networks:
 volumes:
   user-db-data:
   service-db-data:
-  gradle-cache:
