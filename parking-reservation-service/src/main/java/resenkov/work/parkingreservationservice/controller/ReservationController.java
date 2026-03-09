@@ -19,7 +19,7 @@ public class ReservationController {
         this.service = service;
     }
 
-    public static record ReservationRequest(String spotCode, LocalDateTime from, LocalDateTime to) {}
+    public record ReservationRequest(String spotCode, LocalDateTime from, LocalDateTime to) {}
 
     @PostMapping("/book")
     public ResponseEntity<Reservation> book(@RequestBody ReservationRequest req, Principal principal) {
