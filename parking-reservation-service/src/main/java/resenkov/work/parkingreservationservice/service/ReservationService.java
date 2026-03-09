@@ -49,7 +49,7 @@ public class ReservationService {
         validateBookingWindow(now, from, to);
 
         ParkingSpot spot = spotRepo.findByCode(spotCode)
-                .orElseThrow(() -> new EntityNotFoundException("Spot not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Такое место для брони не найдено!"));
 
         List<Reservation> overlaps = resRepo.findOverlappingReservations(
                 spot.getId(), from, to,
@@ -58,7 +58,7 @@ public class ReservationService {
                         Reservation.ReservationStatus.ACTIVE)
         );
         if (!overlaps.isEmpty()) {
-            throw new IllegalStateException("Spot already reserved for selected time");
+            throw new IllegalStateException("Место уже зарезервировано на выбранное время!");
         }
 
         Reservation r = new Reservation();
@@ -96,11 +96,11 @@ public class ReservationService {
     public Reservation confirmReservation(Long reservationId, String userEmail) {
         Reservation r = getOwnedReservation(reservationId, userEmail);
         if (r.getStatus() != Reservation.ReservationStatus.HOLD) {
-            throw new IllegalStateException("Only HOLD reservation can be confirmed");
+            throw new IllegalStateException("Может быть подтверждено только предварительное бронирование!");
         }
         if (LocalDateTime.now().isAfter(r.getHoldExpiresAt())) {
             expireReservation(r);
-            throw new IllegalStateException("Hold time expired");
+            throw new IllegalStateException("Время бронирования кончилось!");
         }
         r.setStatus(Reservation.ReservationStatus.CONFIRMED);
         Reservation saved = resRepo.save(r);
@@ -114,11 +114,11 @@ public class ReservationService {
         LocalDateTime now = LocalDateTime.now();
 
         if (r.getStatus() != Reservation.ReservationStatus.CONFIRMED) {
-            throw new IllegalStateException("Only CONFIRMED reservation can be activated");
+            throw new IllegalStateException("Активировать можно только ПОДТВЕРЖДЕННОЕ бронирование");
         }
         if (now.isAfter(r.getArrivalDeadline())) {
             markNoShow(r);
-            throw new IllegalStateException("Arrival window missed. Reservation marked as NO_SHOW");
+            throw new IllegalStateException("Окно прибытия пропущено.");
         }
 
         r.setStatus(Reservation.ReservationStatus.ACTIVE);
