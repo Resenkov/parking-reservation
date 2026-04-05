@@ -38,7 +38,7 @@ public class JwtUtils {
         claims.put("roles", roles);
         if (userDetails instanceof User user) {
             if (user.getAccountId() != null) {
-                claims.put("accountId", user.getAccountId().getId());
+                claims.put("accountId", user.getAccountId());
             }
         }
         return createToken(claims, userDetails.getUsername());

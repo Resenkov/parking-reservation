@@ -5,7 +5,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import resenkov.work.parkinguserservice.dto.RegistrationRequest;
-import resenkov.work.parkinguserservice.entity.Account;
 import resenkov.work.parkinguserservice.entity.User;
 import resenkov.work.parkinguserservice.exception.DuplicateEmailException;
 import resenkov.work.parkinguserservice.repository.UserRepository;
@@ -17,12 +16,10 @@ import resenkov.work.parkinguserservice.dto.UpdateUserRequest;
 public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
-    private final AccountService accountService;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, AccountService accountService) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
-        this.accountService = accountService;
     }
 
     public User findByEmail(String email) {
@@ -46,8 +43,7 @@ public class UserService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        Account account = accountService.createDefaultAccount();
-        user.setAccountId(account);
+        user.setAccountId(null);
         return repository.save(user);
     }
 
