@@ -17,6 +17,9 @@ public class Account {
     @Column(nullable = false)
     private Long id;
 
+    @Column(name = "user_email", nullable = false, unique = true, length = 255)
+    private String userEmail;
+
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
 

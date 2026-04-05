@@ -183,8 +183,17 @@ public class AccountService {
     }
 
     private Account getAccountByUserEmail(String userEmail) {
-        return accountRepository.findByUserEmailForUpdate(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException("Аккаунт пользователя не найден"));
+        return accountRepository.findByUserEmail(userEmail)
+                .orElseGet(() -> createDefaultAccount(userEmail));
+    }
+
+    private Account createDefaultAccount(String userEmail) {
+        Account account = new Account();
+        account.setUserEmail(userEmail);
+        account.setBalance(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        account.setHeldAmount(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        account.setStatus(AccountStatus.OPEN);
+        return accountRepository.save(account);
     }
 
     private BigDecimal percentOf(BigDecimal total, int percent) {

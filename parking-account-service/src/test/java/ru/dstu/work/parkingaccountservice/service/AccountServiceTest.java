@@ -24,7 +24,9 @@ class AccountServiceTest {
 
     @BeforeEach
     void prepareUsersTable() {
-        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS users (id BIGINT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), account_id BIGINT)");
+        jdbcTemplate.execute("DELETE FROM reservation_ledger");
+        jdbcTemplate.execute("DELETE FROM account_operation");
+        jdbcTemplate.execute("DELETE FROM account");
     }
 
     @Test
@@ -72,9 +74,8 @@ class AccountServiceTest {
     }
 
     private long createUserWithAccount(String email, BigDecimal balance) {
-        jdbcTemplate.update("INSERT INTO account(balance, held_amount, status) VALUES (?, ?, ?)", balance, BigDecimal.ZERO, "OPEN");
-        Long accountId = jdbcTemplate.queryForObject("SELECT MAX(id) FROM account", Long.class);
-        jdbcTemplate.update("INSERT INTO users(email, account_id) VALUES (?, ?)", email, accountId);
-        return accountId;
+        jdbcTemplate.update("INSERT INTO account(user_email, balance, held_amount, status) VALUES (?, ?, ?, ?)",
+                email, balance, BigDecimal.ZERO, "OPEN");
+        return jdbcTemplate.queryForObject("SELECT id FROM account WHERE user_email = ?", Long.class, email);
     }
 }

@@ -25,12 +25,12 @@ public class RequestResponseLoggingFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String uri = request.getRequestURI();
 
-        log.info("Incoming request: {} {} from {}", method, uri, remote);
+        log.debug("Входящий HTTP-запрос: метод={}, uri={}, клиент={}", method, uri, remote);
         try {
             filterChain.doFilter(request, response);
         } finally {
             long took = System.currentTimeMillis() - start;
-            log.info("Outgoing response: {} {} -> status={} in {}ms", method, uri, response.getStatus(), took);
+            log.debug("Исходящий HTTP-ответ: метод={}, uri={}, статус={}, время={}мс", method, uri, response.getStatus(), took);
         }
     }
 }

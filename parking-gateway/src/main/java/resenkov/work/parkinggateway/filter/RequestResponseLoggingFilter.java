@@ -23,14 +23,14 @@ public class RequestResponseLoggingFilter implements GlobalFilter, Ordered {
         String remote = exchange.getRequest().getRemoteAddress() != null
                 ? String.valueOf(exchange.getRequest().getRemoteAddress().getAddress()) : "unknown";
 
-        log.info("Incoming request: {} {} from {}", method, path, remote);
+        log.debug("Шлюз получил запрос: метод={}, path={}, клиент={}", method, path, remote);
 
         return chain.filter(exchange)
                 .doFinally(signalType -> {
                     long took = System.currentTimeMillis() - start;
                     int status = exchange.getResponse().getStatusCode() != null
                             ? exchange.getResponse().getStatusCode().value() : 0;
-                    log.info("Outgoing response: {} {} -> status={} in {}ms", method, path, status, took);
+                    log.debug("Шлюз вернул ответ: метод={}, path={}, статус={}, время={}мс", method, path, status, took);
                 });
     }
 

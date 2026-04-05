@@ -1,4 +1,4 @@
-package resenkov.work.parkinguserservice.filter;
+package ru.dstu.work.parkingaccountservice.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

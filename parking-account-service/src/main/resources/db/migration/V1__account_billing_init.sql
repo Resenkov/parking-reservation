@@ -1,5 +1,39 @@
-ALTER TABLE IF EXISTS public.account
+CREATE TABLE IF NOT EXISTS public.account (
+    id BIGSERIAL PRIMARY KEY,
+    user_email VARCHAR(255) NOT NULL UNIQUE,
+    balance NUMERIC(14,2) NOT NULL DEFAULT 0,
+    held_amount NUMERIC(14,2) NOT NULL DEFAULT 0,
+    status VARCHAR(32) NOT NULL DEFAULT 'OPEN'
+);
+
+ALTER TABLE public.account
+    ADD COLUMN IF NOT EXISTS user_email VARCHAR(255);
+
+ALTER TABLE public.account
     ADD COLUMN IF NOT EXISTS held_amount NUMERIC(14,2) NOT NULL DEFAULT 0;
+
+ALTER TABLE public.account
+    ADD COLUMN IF NOT EXISTS status VARCHAR(32) NOT NULL DEFAULT 'OPEN';
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM public.account WHERE user_email IS NULL) THEN
+        ALTER TABLE public.account
+            ALTER COLUMN user_email SET NOT NULL;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname = 'uk_account_user_email'
+    ) THEN
+        ALTER TABLE public.account
+            ADD CONSTRAINT uk_account_user_email UNIQUE (user_email);
+    END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.account_operation (
     id BIGSERIAL PRIMARY KEY,
