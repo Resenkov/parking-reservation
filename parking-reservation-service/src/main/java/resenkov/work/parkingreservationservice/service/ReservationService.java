@@ -4,7 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import resenkov.work.parkingreservationservice.dto.ReservationCreatedEvent;
+import resenkov.work.parkingreservationservice.dto.ReservationBillingEvent;
 import resenkov.work.parkingreservationservice.entity.ParkingSpot;
 import resenkov.work.parkingreservationservice.entity.Reservation;
 import resenkov.work.parkingreservationservice.entity.ReservationStateHistory;
@@ -81,9 +81,7 @@ public class ReservationService {
         saveHistory(saved, "BOOK_REQUEST", userEmail,
                 "spotCode=" + spotCode + ",from=" + from + ",to=" + to);
 
-        ReservationCreatedEvent event = new ReservationCreatedEvent(
-                saved.getId(), saved.getSpotCode(), saved.getUserEmail(), saved.getEndTime());
-        producer.publishReservationCreated(event);
+        publishBillingEvent(saved, saved.getStatus(), null);
 
         return saved;
     }
@@ -105,6 +103,7 @@ public class ReservationService {
         r.setStatus(Reservation.ReservationStatus.CONFIRMED);
         Reservation saved = resRepo.save(r);
         saveHistory(saved, "CONFIRM", userEmail, "hold confirmed");
+        publishBillingEvent(saved, saved.getStatus(), null);
         return saved;
     }
 
@@ -125,6 +124,7 @@ public class ReservationService {
         markSpotOccupied(r.getSpotId());
         Reservation saved = resRepo.save(r);
         saveHistory(saved, "ACTIVATE", userEmail, "arrival registered");
+        publishBillingEvent(saved, saved.getStatus(), null);
         return saved;
     }
 
@@ -138,6 +138,7 @@ public class ReservationService {
         releaseSpot(r.getSpotId());
         Reservation saved = resRepo.save(r);
         saveHistory(saved, "COMPLETE", userEmail, "session closed");
+        publishBillingEvent(saved, saved.getStatus(), null);
         return saved;
     }
 
@@ -166,6 +167,7 @@ public class ReservationService {
         releaseSpot(r.getSpotId());
         Reservation saved = resRepo.save(r);
         saveHistory(saved, "CANCEL", userEmail, "refundPercent=" + percent + ",refundAmount=" + refund);
+        publishBillingEvent(saved, saved.getStatus(), percent);
         return saved;
     }
 
@@ -259,6 +261,7 @@ public class ReservationService {
         releaseSpot(reservation.getSpotId());
         Reservation saved = resRepo.save(reservation);
         saveHistory(saved, "EXPIRE_HOLD", "SYSTEM", "hold expired after 5 minutes");
+        publishBillingEvent(saved, saved.getStatus(), 100);
     }
 
     private void markNoShow(Reservation reservation) {
@@ -268,8 +271,31 @@ public class ReservationService {
         releaseSpot(reservation.getSpotId());
         Reservation saved = resRepo.save(reservation);
         saveHistory(saved, "NO_SHOW", "SYSTEM", "arrival window missed");
+        publishBillingEvent(saved, saved.getStatus(), 0);
     }
 
+
+
+
+    private void publishBillingEvent(Reservation reservation, Reservation.ReservationStatus status, Integer refundPercent) {
+        ReservationBillingEvent event = new ReservationBillingEvent(
+                buildOperationId(reservation.getId(), status),
+                reservation.getId(),
+                reservation.getUserEmail(),
+                reservation.getSpotCode(),
+                status,
+                reservation.getStartTime(),
+                reservation.getEndTime(),
+                reservation.getTotalAmount(),
+                refundPercent,
+                LocalDateTime.now()
+        );
+        producer.publishReservationEvent(event);
+    }
+
+    private String buildOperationId(Long reservationId, Reservation.ReservationStatus status) {
+        return "reservation-" + reservationId + "-" + status.name().toLowerCase();
+    }
 
     private void saveHistory(Reservation reservation, String action, String requestedBy, String requestDetails) {
         ReservationStateHistory history = new ReservationStateHistory();

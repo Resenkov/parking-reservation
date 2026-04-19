@@ -2,17 +2,19 @@ package resenkov.work.parkingreservationservice.kafka;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import resenkov.work.parkingreservationservice.dto.ReservationCreatedEvent;
+import resenkov.work.parkingreservationservice.dto.ReservationBillingEvent;
 
 @Component
 public class ReservationEventProducer {
-    private final KafkaTemplate<String, ReservationCreatedEvent> kafkaTemplate;
+    private static final String TOPIC = "reservation-events";
 
-    public ReservationEventProducer(KafkaTemplate<String, ReservationCreatedEvent> kafkaTemplate) {
+    private final KafkaTemplate<String, ReservationBillingEvent> kafkaTemplate;
+
+    public ReservationEventProducer(KafkaTemplate<String, ReservationBillingEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void publishReservationCreated(ReservationCreatedEvent event) {
-        kafkaTemplate.send("reservation-events", String.valueOf(event.getReservationId()), event);
+    public void publishReservationEvent(ReservationBillingEvent event) {
+        kafkaTemplate.send(TOPIC, String.valueOf(event.getReservationId()), event);
     }
 }

@@ -3,11 +3,13 @@ package ru.dstu.work.parkingaccountservice.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.dstu.work.parkingaccountservice.dto.ReservationBillingEvent;
 import ru.dstu.work.parkingaccountservice.dto.ReservationBillingRequest;
 import ru.dstu.work.parkingaccountservice.entity.*;
 import ru.dstu.work.parkingaccountservice.exception.BadRequestException;
 import ru.dstu.work.parkingaccountservice.repository.AccountOperationRepository;
 import ru.dstu.work.parkingaccountservice.repository.AccountRepository;
+import ru.dstu.work.parkingaccountservice.repository.AccountReservationRepository;
 import ru.dstu.work.parkingaccountservice.repository.ReservationLedgerRepository;
 
 import java.math.BigDecimal;
@@ -20,13 +22,34 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountOperationRepository operationRepository;
     private final ReservationLedgerRepository ledgerRepository;
+    private final AccountReservationRepository accountReservationRepository;
 
     public AccountService(AccountRepository accountRepository,
                           AccountOperationRepository operationRepository,
-                          ReservationLedgerRepository ledgerRepository) {
+                          ReservationLedgerRepository ledgerRepository,
+                          AccountReservationRepository accountReservationRepository) {
         this.accountRepository = accountRepository;
         this.operationRepository = operationRepository;
         this.ledgerRepository = ledgerRepository;
+        this.accountReservationRepository = accountReservationRepository;
+    }
+
+
+
+    @Transactional
+    public void syncReservation(ReservationBillingEvent event) {
+        AccountReservation reservation = accountReservationRepository.findByReservationId(event.reservationId())
+                .orElseGet(AccountReservation::new);
+
+        reservation.setReservationId(event.reservationId());
+        reservation.setUserEmail(event.userEmail());
+        reservation.setSpotCode(event.spotCode());
+        reservation.setStartTime(event.startTime());
+        reservation.setEndTime(event.endTime());
+        reservation.setTotalAmount(event.totalAmount());
+        reservation.setStatus(event.status());
+
+        accountReservationRepository.save(reservation);
     }
 
     @Transactional

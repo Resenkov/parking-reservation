@@ -24,6 +24,7 @@ class AccountServiceTest {
 
     @BeforeEach
     void prepareUsersTable() {
+        jdbcTemplate.execute("DELETE FROM account_reservation");
         jdbcTemplate.execute("DELETE FROM reservation_ledger");
         jdbcTemplate.execute("DELETE FROM account_operation");
         jdbcTemplate.execute("DELETE FROM account");
