@@ -11,6 +11,15 @@ import java.util.Optional;
 
 public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> {
     Optional<ParkingSpot> findByCode(String code);
+
+    List<ParkingSpot> findAllByOrderByCodeAsc();
+
+    List<ParkingSpot> findByZoneIdOrderByCodeAsc(Long zoneId);
+
+    boolean existsByZoneIdAndCodeIgnoreCase(Long zoneId, String code);
+
+    long countByZoneId(Long zoneId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from ParkingSpot p where p.id = :id")
     ParkingSpot lockByIdForUpdate(@Param("id") Long id);

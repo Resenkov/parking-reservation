@@ -47,14 +47,6 @@
           </set>
         </option>
       </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/parking-account-service" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/parking-account-service" />
-          </set>
-        </option>
-      </GradleProjectSettings>
     </option>
   </component>
 </project>

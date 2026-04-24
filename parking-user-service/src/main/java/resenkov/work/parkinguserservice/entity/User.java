@@ -37,10 +37,6 @@ public class User implements UserDetails {
 
     private String password;
 
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    @OneToOne(cascade = CascadeType.ALL)
-    private Account accountId;
-
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> roles = new HashSet<>(Collections.singleton("USER"));
 

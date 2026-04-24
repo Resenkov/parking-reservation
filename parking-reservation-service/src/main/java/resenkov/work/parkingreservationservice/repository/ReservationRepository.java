@@ -28,4 +28,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByStatusAndHoldExpiresAtBefore(Reservation.ReservationStatus status, LocalDateTime time);
 
     List<Reservation> findByStatusAndArrivalDeadlineBefore(Reservation.ReservationStatus status, LocalDateTime time);
+
+    boolean existsBySpotId(Long spotId);
 }

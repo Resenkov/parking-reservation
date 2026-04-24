@@ -7,7 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public record TopUpRequest(
-        @NotBlank String operationId,
-        @NotNull @DecimalMin(value = "0.01") BigDecimal amount
+        @NotBlank(message = "operationId обязателен") String operationId,
+        @NotNull(message = "Сумма пополнения обязательна")
+        @DecimalMin(value = "0.01", message = "Сумма пополнения должна быть не меньше 0.01")
+        BigDecimal amount
 ) {
 }

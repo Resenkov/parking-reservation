@@ -1,5 +1,7 @@
 package resenkov.work.parkinguserservice.controller;
 
+import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,21 +19,25 @@ import resenkov.work.parkinguserservice.util.JwtUtils;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Log4j2
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
+        log.info("Получен запрос на вход пользователя: email={}", request.getEmail());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
+        log.info("Пользователь успешно аутентифицирован: email={}", request.getEmail());
 
         final String token = jwtUtils.generateToken((UserDetails) authentication.getPrincipal());
+        log.info("JWT успешно сформирован для пользователя: email={}", request.getEmail());
 
         return ResponseEntity.ok(new AuthResponse(token));
     }

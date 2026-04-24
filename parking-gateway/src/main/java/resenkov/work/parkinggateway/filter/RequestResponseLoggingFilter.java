@@ -7,12 +7,16 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @Component
 public class RequestResponseLoggingFilter implements GlobalFilter, Ordered {
 
     private static final Logger log = LoggerFactory.getLogger(RequestResponseLoggingFilter.class);
+    private static final String REQUEST_ID_HEADER = "X-Request-Id";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -22,15 +26,38 @@ public class RequestResponseLoggingFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getRawPath();
         String remote = exchange.getRequest().getRemoteAddress() != null
                 ? String.valueOf(exchange.getRequest().getRemoteAddress().getAddress()) : "unknown";
+        String requestId = exchange.getRequest().getHeaders().getFirst(REQUEST_ID_HEADER);
+        if (requestId == null || requestId.isBlank()) {
+            requestId = UUID.randomUUID().toString();
+        }
+        ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                .header(REQUEST_ID_HEADER, requestId)
+                .build();
+        ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+        exchange.getResponse().getHeaders().set(REQUEST_ID_HEADER, requestId);
 
-        log.info("Incoming request: {} {} from {}", method, path, remote);
+        log.info(
+                "Получен запрос на gateway: метод={}, uri={}, ip={}, requestId={}",
+                method,
+                path,
+                remote,
+                requestId
+        );
 
-        return chain.filter(exchange)
+        String finalRequestId = requestId;
+        return chain.filter(mutatedExchange)
                 .doFinally(signalType -> {
                     long took = System.currentTimeMillis() - start;
                     int status = exchange.getResponse().getStatusCode() != null
                             ? exchange.getResponse().getStatusCode().value() : 0;
-                    log.info("Outgoing response: {} {} -> status={} in {}ms", method, path, status, took);
+                    log.info(
+                            "Gateway вернул ответ: метод={}, uri={}, статус={}, длительность={}мс, requestId={}",
+                            method,
+                            path,
+                            status,
+                            took,
+                            finalRequestId
+                    );
                 });
     }
 

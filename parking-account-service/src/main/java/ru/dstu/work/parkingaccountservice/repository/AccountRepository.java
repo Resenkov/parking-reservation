@@ -11,12 +11,15 @@ import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
+    Optional<Account> findByUserId(Long userId);
+
+    Optional<Account> findByUserEmail(String userEmail);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(value = """
-            select a.*
-            from public.account a
-            join public.users u on u.account_id = a.id
-            where u.email = :email
-            """, nativeQuery = true)
-    Optional<Account> findByUserEmailForUpdate(@Param("email") String email);
+    @Query("select a from Account a where a.userId = :userId")
+    Optional<Account> findByUserIdForUpdate(@Param("userId") Long userId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from Account a where a.userEmail = :userEmail")
+    Optional<Account> findByUserEmailForUpdate(@Param("userEmail") String userEmail);
 }

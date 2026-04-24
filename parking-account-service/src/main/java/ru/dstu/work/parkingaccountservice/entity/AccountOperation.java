@@ -25,6 +25,8 @@ public class AccountOperation {
     @Column(nullable = false)
     private String userEmail;
 
+    private Long userId;
+
     @Column(nullable = false)
     private Long accountId;
 

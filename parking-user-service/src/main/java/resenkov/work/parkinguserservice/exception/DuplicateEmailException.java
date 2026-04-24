@@ -2,6 +2,6 @@ package resenkov.work.parkinguserservice.exception;
 
 public class DuplicateEmailException extends RuntimeException {
     public DuplicateEmailException(String email) {
-        super("User with email already exists: " + email);
+        super("Пользователь с таким email уже существует: " + email);
     }
 }

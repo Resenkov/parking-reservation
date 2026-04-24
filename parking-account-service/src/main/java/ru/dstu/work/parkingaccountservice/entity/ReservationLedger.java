@@ -25,6 +25,8 @@ public class ReservationLedger {
     @Column(nullable = false)
     private String userEmail;
 
+    private Long userId;
+
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal totalAmount = BigDecimal.ZERO;
 

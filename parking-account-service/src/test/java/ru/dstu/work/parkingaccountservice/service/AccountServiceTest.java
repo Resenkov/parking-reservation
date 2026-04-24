@@ -1,11 +1,10 @@
 package ru.dstu.work.parkingaccountservice.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.dstu.work.parkingaccountservice.dto.ReservationBillingRequest;
+import ru.dstu.work.parkingaccountservice.dto.BillingOperationRequest;
 import ru.dstu.work.parkingaccountservice.entity.Account;
 import ru.dstu.work.parkingaccountservice.entity.ReservationStatus;
 
@@ -22,33 +21,28 @@ class AccountServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @BeforeEach
-    void prepareUsersTable() {
-        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS users (id BIGINT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), account_id BIGINT)");
-    }
-
     @Test
     void shouldHoldAndCaptureAndBeIdempotent() {
         String email = "user1@test.com";
-        long accountId = createUserWithAccount(email, BigDecimal.valueOf(1000));
+        long accountId = createAccount(email, BigDecimal.valueOf(1000));
 
         Account toppedUp = accountService.topUp(email, "topup-1", BigDecimal.valueOf(100));
         assertThat(toppedUp.getId()).isEqualTo(accountId);
 
-        Account holdAccount = accountService.applyReservationBilling(new ReservationBillingRequest(
-                "hold-1", 10L, email, ReservationStatus.HOLD, BigDecimal.valueOf(300), null
+        Account holdAccount = accountService.applyReservationBilling(new BillingOperationRequest(
+                "hold-1", 10L, null, email, ReservationStatus.HOLD, BigDecimal.valueOf(300), null
         ));
 
         assertThat(holdAccount.getBalance()).isEqualByComparingTo("800.00");
         assertThat(holdAccount.getHeldAmount()).isEqualByComparingTo("300.00");
 
-        Account idempotentHold = accountService.applyReservationBilling(new ReservationBillingRequest(
-                "hold-1", 10L, email, ReservationStatus.HOLD, BigDecimal.valueOf(300), null
+        Account idempotentHold = accountService.applyReservationBilling(new BillingOperationRequest(
+                "hold-1", 10L, null, email, ReservationStatus.HOLD, BigDecimal.valueOf(300), null
         ));
         assertThat(idempotentHold.getBalance()).isEqualByComparingTo("800.00");
 
-        Account activeAccount = accountService.applyReservationBilling(new ReservationBillingRequest(
-                "capture-1", 10L, email, ReservationStatus.ACTIVE, BigDecimal.valueOf(300), null
+        Account activeAccount = accountService.applyReservationBilling(new BillingOperationRequest(
+                "capture-1", 10L, null, email, ReservationStatus.ACTIVE, BigDecimal.valueOf(300), null
         ));
         assertThat(activeAccount.getHeldAmount()).isEqualByComparingTo("0.00");
         assertThat(activeAccount.getBalance()).isEqualByComparingTo("800.00");
@@ -57,24 +51,57 @@ class AccountServiceTest {
     @Test
     void shouldApplyCancellationRefundPolicy() {
         String email = "user2@test.com";
-        createUserWithAccount(email, BigDecimal.valueOf(1000));
+        createAccount(email, BigDecimal.valueOf(1000));
 
-        accountService.applyReservationBilling(new ReservationBillingRequest(
-                "hold-2", 20L, email, ReservationStatus.HOLD, BigDecimal.valueOf(500), null
+        accountService.applyReservationBilling(new BillingOperationRequest(
+                "hold-2", 20L, null, email, ReservationStatus.HOLD, BigDecimal.valueOf(500), null
         ));
 
-        Account cancelledAccount = accountService.applyReservationBilling(new ReservationBillingRequest(
-                "cancel-2", 20L, email, ReservationStatus.CANCELLED, BigDecimal.valueOf(500), 80
+        Account cancelledAccount = accountService.applyReservationBilling(new BillingOperationRequest(
+                "cancel-2", 20L, null, email, ReservationStatus.CANCELLED, BigDecimal.valueOf(500), 80
         ));
 
         assertThat(cancelledAccount.getBalance()).isEqualByComparingTo("900.00");
         assertThat(cancelledAccount.getHeldAmount()).isEqualByComparingTo("0.00");
     }
 
-    private long createUserWithAccount(String email, BigDecimal balance) {
-        jdbcTemplate.update("INSERT INTO account(balance, held_amount, status) VALUES (?, ?, ?)", balance, BigDecimal.ZERO, "OPEN");
-        Long accountId = jdbcTemplate.queryForObject("SELECT MAX(id) FROM account", Long.class);
-        jdbcTemplate.update("INSERT INTO users(email, account_id) VALUES (?, ?)", email, accountId);
-        return accountId;
+    @Test
+    void shouldCreateWalletIfAbsentIdempotently() {
+        Account created = accountService.createWalletIfAbsent(101L, "new-user@test.com");
+        Account sameWallet = accountService.createWalletIfAbsent(101L, "new-user@test.com");
+
+        assertThat(sameWallet.getId()).isEqualTo(created.getId());
+        assertThat(sameWallet.getUserId()).isEqualTo(101L);
+        assertThat(sameWallet.getUserEmail()).isEqualTo("new-user@test.com");
+    }
+
+    @Test
+    void shouldResolveBillingByUserIdWhenProvided() {
+        Account wallet = accountService.createWalletIfAbsent(202L, "billing-user@test.com");
+        accountService.topUp("billing-user@test.com", "topup-202", BigDecimal.valueOf(100));
+
+        Account billed = accountService.applyReservationBilling(new BillingOperationRequest(
+                "hold-202",
+                2020L,
+                202L,
+                "billing-user@test.com",
+                ReservationStatus.HOLD,
+                BigDecimal.valueOf(50),
+                null
+        ));
+
+        assertThat(billed.getId()).isEqualTo(wallet.getId());
+        assertThat(billed.getHeldAmount()).isEqualByComparingTo("50.00");
+    }
+
+    private long createAccount(String email, BigDecimal balance) {
+        jdbcTemplate.update(
+                "INSERT INTO account(user_email, balance, held_amount, status) VALUES (?, ?, ?, ?)",
+                email,
+                balance,
+                BigDecimal.ZERO,
+                "OPEN"
+        );
+        return jdbcTemplate.queryForObject("SELECT MAX(id) FROM account", Long.class);
     }
 }

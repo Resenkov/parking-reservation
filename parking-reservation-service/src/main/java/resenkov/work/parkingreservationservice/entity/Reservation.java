@@ -19,6 +19,7 @@ public class Reservation {
     private Long spotId;
     private String spotCode;
 
+    private Long userId;
     private String userEmail;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -39,7 +40,9 @@ public class Reservation {
     private ReservationStatus status;
 
     public enum ReservationStatus {
+        PENDING_HOLD,
         HOLD,
+        HOLD_FAILED,
         CONFIRMED,
         ACTIVE,
         COMPLETED,
