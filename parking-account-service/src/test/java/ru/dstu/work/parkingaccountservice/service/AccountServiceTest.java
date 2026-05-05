@@ -66,6 +66,23 @@ class AccountServiceTest {
     }
 
     @Test
+    void shouldKeepZeroRefundForNoShow() {
+        String email = "user3@test.com";
+        createAccount(email, BigDecimal.valueOf(1000));
+
+        accountService.applyReservationBilling(new BillingOperationRequest(
+                "hold-3", 30L, null, email, ReservationStatus.HOLD, BigDecimal.valueOf(400), null
+        ));
+
+        Account noShowAccount = accountService.applyReservationBilling(new BillingOperationRequest(
+                "no-show-3", 30L, null, email, ReservationStatus.NO_SHOW, BigDecimal.valueOf(400), null
+        ));
+
+        assertThat(noShowAccount.getBalance()).isEqualByComparingTo("600.00");
+        assertThat(noShowAccount.getHeldAmount()).isEqualByComparingTo("0.00");
+    }
+
+    @Test
     void shouldCreateWalletIfAbsentIdempotently() {
         Account created = accountService.createWalletIfAbsent(101L, "new-user@test.com");
         Account sameWallet = accountService.createWalletIfAbsent(101L, "new-user@test.com");

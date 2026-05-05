@@ -93,6 +93,7 @@ services:
     build:
       context: ./parking-eureka-server
     image: parking-eureka-server:local
+    pull_policy: never
     ports:
       - "8761:8761"
     healthcheck:
@@ -107,6 +108,7 @@ services:
     build:
       context: ./parking-gateway
     image: parking-gateway:local
+    pull_policy: never
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     ports:
@@ -126,6 +128,7 @@ services:
     build:
       context: ./parking-user-service
     image: parking-user-service:local
+    pull_policy: never
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/postgres
@@ -148,6 +151,7 @@ services:
     build:
       context: ./parking-account-service
     image: parking-account-service:local
+    pull_policy: never
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SERVER_PORT: 8081
@@ -168,6 +172,7 @@ services:
     build:
       context: ./parking-reservation-service
     image: parking-reservation-service:local
+    pull_policy: never
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:postgresql://service-db:5432/postgres
@@ -184,6 +189,19 @@ services:
         condition: service_healthy
       account-service:
         condition: service_started
+    networks:
+      - parking-network
+
+  frontend:
+    build:
+      context: ./parking-frontend
+    image: parking-frontend:local
+    pull_policy: never
+    ports:
+      - "3000:80"
+    depends_on:
+      gateway:
+        condition: service_healthy
     networks:
       - parking-network
 

@@ -1,0 +1,203 @@
+2026-05-05 00:00:22.512 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 00:00:22.527 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 00:00:22.529 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 00:00:22.658 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 00:00:22.661 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 00:00:22.666 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 00:00:22.667 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=30, refundAmount=120.00
+2026-05-05 00:00:22.690 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 00:00:22.690 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=1, operationId=reservation-1-no-show
+2026-05-05 00:00:22.692 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 00:00:22.692 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 00:00:22.704 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 00:00:22.705 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 00:00:22.706 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 00:00:22.708 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 00:00:39.789 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 00:00:39.798 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 00:00:39.799 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 00:00:39.893 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 00:00:39.894 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 00:00:39.898 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 00:00:39.899 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=30, refundAmount=120.00
+2026-05-05 00:00:39.917 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 00:00:39.918 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=1, operationId=reservation-1-no-show
+2026-05-05 00:00:39.919 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 00:00:39.920 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 00:00:39.935 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 00:00:39.936 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 00:00:39.937 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 00:00:39.939 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 00:01:43.245 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 00:01:43.774 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 00:01:43.842 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 00:01:45.790 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 00:01:45.798 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 00:01:45.974 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 00:01:45.999 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=30, refundAmount=120.00
+2026-05-05 00:01:46.439 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 00:01:46.466 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=1, refundPercent=30, operationId=reservation-1-cancelled
+2026-05-05 00:01:46.496 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 00:01:46.572 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 00:01:46.721 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 00:01:46.727 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 00:01:46.740 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 00:01:46.747 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 00:36:25.008 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 00:36:25.019 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 00:36:25.020 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 00:36:25.120 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 00:36:25.121 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 00:36:25.125 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 00:36:25.127 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=30, refundAmount=120.00
+2026-05-05 00:36:25.149 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 00:36:25.150 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=1, refundPercent=30, operationId=reservation-1-cancelled
+2026-05-05 00:36:25.151 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 00:36:25.153 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 00:36:25.158 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Подтверждение брони: reservationId=6, email=user@test.com
+2026-05-05 00:36:25.158 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие EXPIRED в account-service: reservationId=6, operationId=reservation-6-expired
+2026-05-05 00:36:25.159 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=12, occupied=false
+2026-05-05 00:36:25.159 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - HOLD истёк: reservationId=6
+2026-05-05 00:36:25.164 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 00:36:25.164 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 00:36:25.165 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 00:36:25.166 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 00:36:25.170 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=5, email=user@test.com
+2026-05-05 00:36:25.170 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=5, operationId=reservation-5-no-show
+2026-05-05 00:36:25.171 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=11, occupied=false
+2026-05-05 00:36:25.171 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=5, refundPercent=30, refundAmount=120.00
+2026-05-05 00:36:43.862 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 00:36:43.873 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 00:36:43.874 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 00:36:43.965 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 00:36:43.966 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 00:36:43.968 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 00:36:43.969 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=30, refundAmount=120.00
+2026-05-05 00:36:43.982 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 00:36:43.984 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=1, refundPercent=30, operationId=reservation-1-cancelled
+2026-05-05 00:36:43.985 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 00:36:43.987 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 00:36:43.993 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Подтверждение брони: reservationId=6, email=user@test.com
+2026-05-05 00:36:43.994 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие EXPIRED в account-service: reservationId=6, operationId=reservation-6-expired
+2026-05-05 00:36:43.995 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=12, occupied=false
+2026-05-05 00:36:43.995 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - HOLD истёк: reservationId=6
+2026-05-05 00:36:44.001 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 00:36:44.001 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 00:36:44.002 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 00:36:44.003 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 00:36:44.010 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=5, email=user@test.com
+2026-05-05 00:36:44.011 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=5, operationId=reservation-5-no-show
+2026-05-05 00:36:44.011 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=11, occupied=false
+2026-05-05 00:36:44.012 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=5, refundPercent=30, refundAmount=120.00
+2026-05-05 00:46:51.266 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 00:46:51.302 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 00:46:51.305 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 00:46:51.515 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 00:46:51.516 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 00:46:51.584 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 00:46:51.586 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=30, refundAmount=120.00
+2026-05-05 00:46:51.607 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 00:46:51.609 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=1, refundPercent=30, operationId=reservation-1-cancelled
+2026-05-05 00:46:51.609 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 00:46:51.613 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 00:46:51.623 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Активация брони: reservationId=7, email=user@test.com
+2026-05-05 00:46:51.636 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Подтверждение брони: reservationId=6, email=user@test.com
+2026-05-05 00:46:51.637 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие EXPIRED в account-service: reservationId=6, operationId=reservation-6-expired
+2026-05-05 00:46:51.639 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=12, occupied=false
+2026-05-05 00:46:51.640 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - HOLD истёк: reservationId=6
+2026-05-05 00:46:51.646 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 00:46:51.647 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 00:46:51.648 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 00:46:51.649 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 00:46:51.656 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=5, email=user@test.com
+2026-05-05 00:46:51.658 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=5, operationId=reservation-5-no-show
+2026-05-05 00:46:51.659 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=11, occupied=false
+2026-05-05 00:46:51.659 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=5, refundPercent=30, refundAmount=120.00
+2026-05-05 00:47:10.384 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 00:47:10.393 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 00:47:10.393 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 00:47:10.463 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 00:47:10.464 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 00:47:10.467 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 00:47:10.468 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=30, refundAmount=120.00
+2026-05-05 00:47:10.483 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 00:47:10.483 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=1, refundPercent=30, operationId=reservation-1-cancelled
+2026-05-05 00:47:10.486 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 00:47:10.488 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 00:47:10.494 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Активация брони: reservationId=7, email=user@test.com
+2026-05-05 00:47:10.501 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Подтверждение брони: reservationId=6, email=user@test.com
+2026-05-05 00:47:10.501 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие EXPIRED в account-service: reservationId=6, operationId=reservation-6-expired
+2026-05-05 00:47:10.502 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=12, occupied=false
+2026-05-05 00:47:10.502 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - HOLD истёк: reservationId=6
+2026-05-05 00:47:10.508 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 00:47:10.509 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 00:47:10.510 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 00:47:10.510 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 00:47:10.515 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=5, email=user@test.com
+2026-05-05 00:47:10.515 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=5, operationId=reservation-5-no-show
+2026-05-05 00:47:10.516 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=11, occupied=false
+2026-05-05 00:47:10.516 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=5, refundPercent=30, refundAmount=120.00
+2026-05-05 12:54:57.447 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=22, email=user@test.com
+2026-05-05 12:54:57.463 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=22, refundPercent=60, operationId=reservation-22-cancelled
+2026-05-05 12:54:57.467 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=82, occupied=false
+2026-05-05 12:54:57.471 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=22, refundPercent=60, refundAmount=240.00
+2026-05-05 12:54:57.596 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 12:54:57.596 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 12:54:57.596 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 12:54:57.606 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=21, email=user@test.com
+2026-05-05 12:54:57.606 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=21, refundPercent=80, operationId=reservation-21-cancelled
+2026-05-05 12:54:57.606 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=81, occupied=false
+2026-05-05 12:54:57.606 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=21, refundPercent=80, refundAmount=320.00
+2026-05-05 12:54:57.615 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 12:54:57.615 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 12:54:57.615 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 12:54:57.617 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=0, refundAmount=0.00
+2026-05-05 12:54:57.619 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 12:54:57.619 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=1, refundPercent=30, operationId=reservation-1-cancelled
+2026-05-05 12:54:57.619 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 12:54:57.619 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 12:54:57.627 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Активация брони: reservationId=7, email=user@test.com
+2026-05-05 12:54:57.630 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Подтверждение брони: reservationId=6, email=user@test.com
+2026-05-05 12:54:57.637 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие EXPIRED в account-service: reservationId=6, operationId=reservation-6-expired
+2026-05-05 12:54:57.637 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=12, occupied=false
+2026-05-05 12:54:57.637 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - HOLD истёк: reservationId=6
+2026-05-05 12:54:57.641 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 12:54:57.641 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 12:54:57.641 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 12:54:57.641 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 12:54:57.650 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=5, email=user@test.com
+2026-05-05 12:54:57.651 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=5, operationId=reservation-5-no-show
+2026-05-05 12:54:57.651 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=11, occupied=false
+2026-05-05 12:54:57.652 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=5, refundPercent=0, refundAmount=0.00
+2026-05-05 12:55:27.395 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=22, email=user@test.com
+2026-05-05 12:55:27.424 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=22, refundPercent=60, operationId=reservation-22-cancelled
+2026-05-05 12:55:27.429 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=82, occupied=false
+2026-05-05 12:55:27.433 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=22, refundPercent=60, refundAmount=240.00
+2026-05-05 12:55:27.539 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Running auto-complete for ACTIVE reservations: count=1
+2026-05-05 12:55:27.539 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=10, occupied=false
+2026-05-05 12:55:27.539 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - ACTIVE reservation auto-completed: reservationId=4
+2026-05-05 12:55:27.544 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=21, email=user@test.com
+2026-05-05 12:55:27.553 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=21, refundPercent=80, operationId=reservation-21-cancelled
+2026-05-05 12:55:27.553 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=81, occupied=false
+2026-05-05 12:55:27.555 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=21, refundPercent=80, refundAmount=320.00
+2026-05-05 12:55:27.561 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Запущено закрытие NO_SHOW: count=1
+2026-05-05 12:55:27.563 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=3, operationId=reservation-3-no-show
+2026-05-05 12:55:27.563 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=9, occupied=false
+2026-05-05 12:55:27.563 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=3, refundPercent=0, refundAmount=0.00
+2026-05-05 12:55:27.573 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=1, email=user@test.com
+2026-05-05 12:55:27.575 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=1, refundPercent=30, operationId=reservation-1-cancelled
+2026-05-05 12:55:27.575 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=7, occupied=true
+2026-05-05 12:55:27.576 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=1, refundPercent=30, refundAmount=120.00
+2026-05-05 12:55:27.580 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Активация брони: reservationId=7, email=user@test.com
+2026-05-05 12:55:27.591 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Подтверждение брони: reservationId=6, email=user@test.com
+2026-05-05 12:55:27.591 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие EXPIRED в account-service: reservationId=6, operationId=reservation-6-expired
+2026-05-05 12:55:27.593 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=12, occupied=false
+2026-05-05 12:55:27.593 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - HOLD истёк: reservationId=6
+2026-05-05 12:55:27.599 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=2, email=user@test.com
+2026-05-05 12:55:27.599 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие CANCELLED в account-service: reservationId=2, refundPercent=80, operationId=reservation-2-cancelled
+2026-05-05 12:55:27.599 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=8, occupied=false
+2026-05-05 12:55:27.599 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Бронь отменена: reservationId=2, refundPercent=80, refundAmount=320.00
+2026-05-05 12:55:27.607 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отмена брони: reservationId=5, email=user@test.com
+2026-05-05 12:55:27.607 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Отправляем событие NO_SHOW в account-service: reservationId=5, operationId=reservation-5-no-show
+2026-05-05 12:55:27.610 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Parking spot occupancy refreshed: spotId=11, occupied=false
+2026-05-05 12:55:27.610 [Test worker] INFO  r.w.p.s.ReservationService [requestId=] - Reservation moved to NO_SHOW: reservationId=5, refundPercent=0, refundAmount=0.00

@@ -5,7 +5,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.dstu.work.parkingaccountservice.dto.BillingOperationRequest;
-import ru.dstu.work.parkingaccountservice.entity.*;
+import ru.dstu.work.parkingaccountservice.entity.Account;
+import ru.dstu.work.parkingaccountservice.entity.AccountOperation;
+import ru.dstu.work.parkingaccountservice.entity.AccountStatus;
+import ru.dstu.work.parkingaccountservice.entity.OperationType;
+import ru.dstu.work.parkingaccountservice.entity.ReservationLedger;
+import ru.dstu.work.parkingaccountservice.entity.ReservationStatus;
 import ru.dstu.work.parkingaccountservice.exception.BadRequestException;
 import ru.dstu.work.parkingaccountservice.repository.AccountOperationRepository;
 import ru.dstu.work.parkingaccountservice.repository.AccountRepository;
@@ -19,6 +24,8 @@ import java.util.Locale;
 @Service
 @Log4j2
 public class AccountService {
+
+    private static final int DEFAULT_NO_SHOW_REFUND_PERCENT = 0;
 
     private final AccountRepository accountRepository;
     private final AccountOperationRepository operationRepository;
@@ -35,9 +42,9 @@ public class AccountService {
     @Transactional
     public Account createWalletIfAbsent(Long userId, String userEmail) {
         String normalizedEmail = normalizeEmail(userEmail);
-        log.info("Создание/проверка счёта: userId={}, email={}", userId, normalizedEmail);
+        log.info("РЎРѕР·РґР°РЅРёРµ/РїСЂРѕРІРµСЂРєР° СЃС‡С‘С‚Р°: userId={}, email={}", userId, normalizedEmail);
         Account account = upsertWallet(userId, normalizedEmail);
-        log.info("Счёт готов к работе: accountId={}, userId={}, email={}", account.getId(), account.getUserId(), account.getUserEmail());
+        log.info("РЎС‡С‘С‚ РіРѕС‚РѕРІ Рє СЂР°Р±РѕС‚Рµ: accountId={}, userId={}, email={}", account.getId(), account.getUserId(), account.getUserEmail());
         return account;
     }
 
@@ -45,18 +52,18 @@ public class AccountService {
     public Account topUp(String userEmail, String operationId, BigDecimal amount) {
         validateAmount(amount);
         String normalizedEmail = normalizeEmail(userEmail);
-        log.info("Пополнение счёта: email={}, operationId={}, amount={}", normalizedEmail, operationId, amount);
+        log.info("РџРѕРїРѕР»РЅРµРЅРёРµ СЃС‡С‘С‚Р°: email={}, operationId={}, amount={}", normalizedEmail, operationId, amount);
 
         Account account = getAccountByUserEmailForUpdate(normalizedEmail);
         if (operationRepository.findByOperationId(operationId).isPresent()) {
-            log.info("Идемпотентность top-up: операция уже выполнена, operationId={}", operationId);
+            log.info("РРґРµРјРїРѕС‚РµРЅС‚РЅРѕСЃС‚СЊ top-up: РѕРїРµСЂР°С†РёСЏ СѓР¶Рµ РІС‹РїРѕР»РЅРµРЅР°, operationId={}", operationId);
             return account;
         }
 
         account.setBalance(account.getBalance().add(amount));
         accountRepository.save(account);
-        saveOperation(operationId, normalizedEmail, account.getUserId(), account.getId(), null, OperationType.TOP_UP, amount, "пополнение счёта");
-        log.info("Пополнение выполнено: accountId={}, новый баланс={}", account.getId(), account.getBalance());
+        saveOperation(operationId, normalizedEmail, account.getUserId(), account.getId(), null, OperationType.TOP_UP, amount, "РїРѕРїРѕР»РЅРµРЅРёРµ СЃС‡С‘С‚Р°");
+        log.info("РџРѕРїРѕР»РЅРµРЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ: accountId={}, РЅРѕРІС‹Р№ Р±Р°Р»Р°РЅСЃ={}", account.getId(), account.getBalance());
         return account;
     }
 
@@ -64,7 +71,7 @@ public class AccountService {
     public Account applyReservationBilling(BillingOperationRequest request) {
         String normalizedEmail = normalizeEmail(request.userEmail());
         log.info(
-                "Обработка биллингового события: operationId={}, reservationId={}, status={}, userId={}, email={}",
+                "РћР±СЂР°Р±РѕС‚РєР° Р±РёР»Р»РёРЅРіРѕРІРѕРіРѕ СЃРѕР±С‹С‚РёСЏ: operationId={}, reservationId={}, status={}, userId={}, email={}",
                 request.operationId(),
                 request.reservationId(),
                 request.status(),
@@ -73,7 +80,7 @@ public class AccountService {
         );
         Account account = getAccountForBilling(request.userId(), normalizedEmail);
         if (operationRepository.findByOperationId(request.operationId()).isPresent()) {
-            log.info("Идемпотентность billing: операция уже выполнена, operationId={}", request.operationId());
+            log.info("РРґРµРјРїРѕС‚РµРЅС‚РЅРѕСЃС‚СЊ billing: РѕРїРµСЂР°С†РёСЏ СѓР¶Рµ РІС‹РїРѕР»РЅРµРЅР°, operationId={}", request.operationId());
             return account;
         }
 
@@ -88,23 +95,23 @@ public class AccountService {
     }
 
     public List<AccountOperation> getOperationHistory(String userEmail) {
-        log.info("Чтение истории операций: email={}", userEmail);
+        log.info("Р§С‚РµРЅРёРµ РёСЃС‚РѕСЂРёРё РѕРїРµСЂР°С†РёР№: email={}", userEmail);
         return operationRepository.findByUserEmailOrderByCreatedAtDesc(normalizeEmail(userEmail));
     }
 
     public Account getAccount(String userEmail) {
-        log.info("Чтение счёта: email={}", userEmail);
+        log.info("Р§С‚РµРЅРёРµ СЃС‡С‘С‚Р°: email={}", userEmail);
         return getAccountByUserEmail(normalizeEmail(userEmail));
     }
 
     private Account holdFunds(Account account, BillingOperationRequest request, String userEmail, Long userId) {
         validateAmount(request.totalAmount());
         if (account.getBalance().compareTo(request.totalAmount()) < 0) {
-            throw new BadRequestException("Недостаточно средств для HOLD-операции");
+            throw new BadRequestException("РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЃСЂРµРґСЃС‚РІ РґР»СЏ HOLD-РѕРїРµСЂР°С†РёРё");
         }
 
         log.info(
-                "Выполняем HOLD: accountId={}, reservationId={}, amount={}",
+                "Р’С‹РїРѕР»РЅСЏРµРј HOLD: accountId={}, reservationId={}, amount={}",
                 account.getId(),
                 request.reservationId(),
                 request.totalAmount()
@@ -131,10 +138,10 @@ public class AccountService {
                 request.reservationId(),
                 OperationType.HOLD,
                 request.totalAmount(),
-                "заморозка средств на 5 минут"
+                "Р·Р°РјРѕСЂРѕР·РєР° СЃСЂРµРґСЃС‚РІ РЅР° 5 РјРёРЅСѓС‚"
         );
         log.info(
-                "HOLD выполнен: accountId={}, reservationId={}, balance={}, heldAmount={}",
+                "HOLD РІС‹РїРѕР»РЅРµРЅ: accountId={}, reservationId={}, balance={}, heldAmount={}",
                 account.getId(),
                 request.reservationId(),
                 account.getBalance(),
@@ -145,7 +152,7 @@ public class AccountService {
 
     private Account captureOnUsage(Account account, BillingOperationRequest request, String userEmail, Long userId) {
         ReservationLedger ledger = getLedger(request.reservationId());
-        log.info("Выполняем CAPTURE: accountId={}, reservationId={}", account.getId(), request.reservationId());
+        log.info("Р’С‹РїРѕР»РЅСЏРµРј CAPTURE: accountId={}, reservationId={}", account.getId(), request.reservationId());
 
         BigDecimal toCapture = ledger.getHeldAmount();
         if (toCapture.compareTo(BigDecimal.ZERO) > 0) {
@@ -160,14 +167,14 @@ public class AccountService {
                     request.reservationId(),
                     OperationType.CAPTURE,
                     toCapture,
-                    "списание средств при статусе " + request.status()
+                    "СЃРїРёСЃР°РЅРёРµ СЃСЂРµРґСЃС‚РІ РїСЂРё СЃС‚Р°С‚СѓСЃРµ " + request.status()
             );
         }
         ledger.setLastStatus(request.status());
         accountRepository.save(account);
         ledgerRepository.save(ledger);
         log.info(
-                "CAPTURE завершён: accountId={}, reservationId={}, capturedAmount={}, heldAmount={}",
+                "CAPTURE Р·Р°РІРµСЂС€С‘РЅ: accountId={}, reservationId={}, capturedAmount={}, heldAmount={}",
                 account.getId(),
                 request.reservationId(),
                 ledger.getCapturedAmount(),
@@ -181,11 +188,11 @@ public class AccountService {
 
         int refundPercent = request.refundPercent() == null ? 0 : request.refundPercent();
         if (refundPercent < 0 || refundPercent > 100) {
-            throw new BadRequestException("refundPercent должен быть в диапазоне 0..100");
+            throw new BadRequestException("refundPercent РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ РґРёР°РїР°Р·РѕРЅРµ 0..100");
         }
 
         log.info(
-                "Обработка CANCELLED: accountId={}, reservationId={}, refundPercent={}",
+                "РћР±СЂР°Р±РѕС‚РєР° CANCELLED: accountId={}, reservationId={}, refundPercent={}",
                 account.getId(),
                 request.reservationId(),
                 refundPercent
@@ -199,14 +206,14 @@ public class AccountService {
             account.setBalance(account.getBalance().add(refund));
             ledger.setRefundedAmount(ledger.getRefundedAmount().add(refund));
             saveOperation(
-                    request.operationId() + "-REFUND",
+                    refundOperationId(request.operationId(), penalty),
                     userEmail,
                     userId,
                     account.getId(),
                     request.reservationId(),
                     OperationType.REFUND,
                     refund,
-                    "возврат при отмене " + refundPercent + "%"
+                    "РІРѕР·РІСЂР°С‚ РїСЂРё РѕС‚РјРµРЅРµ " + refundPercent + "%"
             );
         }
 
@@ -220,7 +227,7 @@ public class AccountService {
                     request.reservationId(),
                     OperationType.PENALTY,
                     penalty,
-                    "штраф при отмене " + (100 - refundPercent) + "%"
+                    "С€С‚СЂР°С„ РїСЂРё РѕС‚РјРµРЅРµ " + (100 - refundPercent) + "%"
             );
         }
 
@@ -230,7 +237,7 @@ public class AccountService {
         accountRepository.save(account);
         ledgerRepository.save(ledger);
         log.info(
-                "CANCELLED обработан: accountId={}, reservationId={}, refund={}, penalty={}, balance={}",
+                "CANCELLED РѕР±СЂР°Р±РѕС‚Р°РЅ: accountId={}, reservationId={}, refund={}, penalty={}, balance={}",
                 account.getId(),
                 request.reservationId(),
                 refund,
@@ -242,7 +249,7 @@ public class AccountService {
 
     private Account expireWithFullRefund(Account account, BillingOperationRequest request, String userEmail, Long userId) {
         ReservationLedger ledger = getLedger(request.reservationId());
-        log.info("Обработка EXPIRED: accountId={}, reservationId={}", account.getId(), request.reservationId());
+        log.info("РћР±СЂР°Р±РѕС‚РєР° EXPIRED: accountId={}, reservationId={}", account.getId(), request.reservationId());
 
         BigDecimal held = ledger.getHeldAmount();
         account.setBalance(account.getBalance().add(held));
@@ -263,10 +270,10 @@ public class AccountService {
                 request.reservationId(),
                 OperationType.REFUND,
                 held,
-                "полный возврат при EXPIRED"
+                "РїРѕР»РЅС‹Р№ РІРѕР·РІСЂР°С‚ РїСЂРё EXPIRED"
         );
         log.info(
-                "EXPIRED обработан: accountId={}, reservationId={}, refund={}, balance={}",
+                "EXPIRED РѕР±СЂР°Р±РѕС‚Р°РЅ: accountId={}, reservationId={}, refund={}, balance={}",
                 account.getId(),
                 request.reservationId(),
                 held,
@@ -277,32 +284,61 @@ public class AccountService {
 
     private Account closeAsNoShow(Account account, BillingOperationRequest request, String userEmail, Long userId) {
         ReservationLedger ledger = getLedger(request.reservationId());
-        log.info("Обработка NO_SHOW: accountId={}, reservationId={}", account.getId(), request.reservationId());
+        int refundPercent = request.refundPercent() == null ? DEFAULT_NO_SHOW_REFUND_PERCENT : request.refundPercent();
+        if (refundPercent < 0 || refundPercent > 100) {
+            throw new BadRequestException("refundPercent must be in range 0..100");
+        }
+        log.info(
+                "Processing NO_SHOW: accountId={}, reservationId={}, refundPercent={}",
+                account.getId(),
+                request.reservationId(),
+                refundPercent
+        );
 
         BigDecimal held = ledger.getHeldAmount();
+        BigDecimal refund = percentOf(held, refundPercent);
+        BigDecimal penalty = held.subtract(refund);
+
+        if (refund.compareTo(BigDecimal.ZERO) > 0) {
+            account.setBalance(account.getBalance().add(refund));
+            ledger.setRefundedAmount(ledger.getRefundedAmount().add(refund));
+            saveOperation(
+                    refundOperationId(request.operationId(), penalty),
+                    userEmail,
+                    userId,
+                    account.getId(),
+                    request.reservationId(),
+                    OperationType.REFUND,
+                    refund,
+                    "no-show refund " + refundPercent + "%"
+            );
+        }
+
         account.setHeldAmount(account.getHeldAmount().subtract(held));
         ledger.setHeldAmount(BigDecimal.ZERO);
-        ledger.setPenaltyAmount(ledger.getPenaltyAmount().add(held));
+        if (penalty.compareTo(BigDecimal.ZERO) > 0) {
+            ledger.setPenaltyAmount(ledger.getPenaltyAmount().add(penalty));
+            saveOperation(
+                    request.operationId(),
+                    userEmail,
+                    userId,
+                    account.getId(),
+                    request.reservationId(),
+                    OperationType.PENALTY,
+                    penalty,
+                    "no-show penalty " + (100 - refundPercent) + "%"
+            );
+        }
         ledger.setLastStatus(ReservationStatus.NO_SHOW);
 
         accountRepository.save(account);
         ledgerRepository.save(ledger);
-
-        saveOperation(
-                request.operationId(),
-                userEmail,
-                userId,
-                account.getId(),
-                request.reservationId(),
-                OperationType.PENALTY,
-                held,
-                "штраф NO_SHOW 100%"
-        );
         log.info(
-                "NO_SHOW обработан: accountId={}, reservationId={}, penalty={}, heldAmount={}",
+                "NO_SHOW processed: accountId={}, reservationId={}, refund={}, penalty={}, heldAmount={}",
                 account.getId(),
                 request.reservationId(),
-                held,
+                refund,
+                penalty,
                 account.getHeldAmount()
         );
         return account;
@@ -310,7 +346,7 @@ public class AccountService {
 
     private ReservationLedger getLedger(Long reservationId) {
         return ledgerRepository.findByReservationId(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException("Леджер по брони не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Р›РµРґР¶РµСЂ РїРѕ Р±СЂРѕРЅРё РЅРµ РЅР°Р№РґРµРЅ"));
     }
 
     private Account getAccountForBilling(Long userId, String userEmail) {
@@ -349,11 +385,11 @@ public class AccountService {
         }
         if (account.getUserId() == null) {
             account.setUserId(userId);
-            log.info("Привязка userId к счёту: accountId={}, userId={}", account.getId(), userId);
+            log.info("РџСЂРёРІСЏР·РєР° userId Рє СЃС‡С‘С‚Сѓ: accountId={}, userId={}", account.getId(), userId);
             return accountRepository.save(account);
         }
         if (!account.getUserId().equals(userId)) {
-            throw new BadRequestException("Счёт уже привязан к другому userId");
+            throw new BadRequestException("РЎС‡С‘С‚ СѓР¶Рµ РїСЂРёРІСЏР·Р°РЅ Рє РґСЂСѓРіРѕРјСѓ userId");
         }
         return account;
     }
@@ -361,11 +397,11 @@ public class AccountService {
     private Account updateEmailIfNeeded(Account account, String userEmail) {
         if (account.getUserEmail() == null) {
             account.setUserEmail(userEmail);
-            log.info("Привязка email к счёту: accountId={}, email={}", account.getId(), userEmail);
+            log.info("РџСЂРёРІСЏР·РєР° email Рє СЃС‡С‘С‚Сѓ: accountId={}, email={}", account.getId(), userEmail);
             return accountRepository.save(account);
         }
         if (!account.getUserEmail().equals(userEmail)) {
-            throw new BadRequestException("Счёт уже привязан к другому email");
+            throw new BadRequestException("РЎС‡С‘С‚ СѓР¶Рµ РїСЂРёРІСЏР·Р°РЅ Рє РґСЂСѓРіРѕРјСѓ email");
         }
         return account;
     }
@@ -382,7 +418,7 @@ public class AccountService {
         account.setHeldAmount(BigDecimal.ZERO);
         account.setStatus(AccountStatus.OPEN);
         Account saved = accountRepository.save(account);
-        log.info("Создан новый счёт: accountId={}, userId={}, email={}", saved.getId(), saved.getUserId(), saved.getUserEmail());
+        log.info("РЎРѕР·РґР°РЅ РЅРѕРІС‹Р№ СЃС‡С‘С‚: accountId={}, userId={}, email={}", saved.getId(), saved.getUserId(), saved.getUserEmail());
         return saved;
     }
 
@@ -391,15 +427,19 @@ public class AccountService {
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 
+    private String refundOperationId(String baseOperationId, BigDecimal penalty) {
+        return penalty.compareTo(BigDecimal.ZERO) > 0 ? baseOperationId + "-REFUND" : baseOperationId;
+    }
+
     private void validateAmount(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Сумма должна быть больше 0");
+            throw new BadRequestException("РЎСѓРјРјР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0");
         }
     }
 
     private String normalizeEmail(String userEmail) {
         if (userEmail == null || userEmail.isBlank()) {
-            throw new BadRequestException("userEmail обязателен");
+            throw new BadRequestException("userEmail РѕР±СЏР·Р°С‚РµР»РµРЅ");
         }
         return userEmail.trim().toLowerCase(Locale.ROOT);
     }
@@ -413,7 +453,7 @@ public class AccountService {
                                BigDecimal amount,
                                String details) {
         if (operationRepository.findByOperationId(operationId).isPresent()) {
-            log.info("Идемпотентность операции: операция уже существует, operationId={}", operationId);
+            log.info("РРґРµРјРїРѕС‚РµРЅС‚РЅРѕСЃС‚СЊ РѕРїРµСЂР°С†РёРё: РѕРїРµСЂР°С†РёСЏ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, operationId={}", operationId);
             return;
         }
         AccountOperation operation = new AccountOperation();
@@ -427,7 +467,7 @@ public class AccountService {
         operation.setDetails(details);
         operationRepository.save(operation);
         log.info(
-                "Операция сохранена: operationId={}, type={}, accountId={}, reservationId={}, amount={}",
+                "РћРїРµСЂР°С†РёСЏ СЃРѕС…СЂР°РЅРµРЅР°: operationId={}, type={}, accountId={}, reservationId={}, amount={}",
                 operationId,
                 type,
                 accountId,

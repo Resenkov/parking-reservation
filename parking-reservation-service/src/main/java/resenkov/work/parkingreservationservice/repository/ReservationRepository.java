@@ -25,9 +25,24 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("statuses") List<Reservation.ReservationStatus> statuses
     );
 
-    List<Reservation> findByStatusAndHoldExpiresAtBefore(Reservation.ReservationStatus status, LocalDateTime time);
+    List<Reservation> findByStatusAndHoldExpiresAtLessThanEqual(Reservation.ReservationStatus status, LocalDateTime time);
 
-    List<Reservation> findByStatusAndArrivalDeadlineBefore(Reservation.ReservationStatus status, LocalDateTime time);
+    List<Reservation> findByStatusAndArrivalDeadlineLessThanEqual(Reservation.ReservationStatus status, LocalDateTime time);
+
+    List<Reservation> findByStatusAndEndTimeLessThanEqual(Reservation.ReservationStatus status, LocalDateTime time);
+
+    @Query("""
+            select (count(r) > 0) from Reservation r
+            where r.spotId = :spotId
+              and r.status = :status
+              and r.startTime <= :moment
+              and r.endTime > :moment
+            """)
+    boolean existsCurrentReservation(
+            @Param("spotId") Long spotId,
+            @Param("status") Reservation.ReservationStatus status,
+            @Param("moment") LocalDateTime moment
+    );
 
     boolean existsBySpotId(Long spotId);
 }

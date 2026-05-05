@@ -7,10 +7,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import resenkov.work.parkingreservationservice.entity.ParkingSpot;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> {
+public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long>, ParkingSpotRepositoryCustom {
     Optional<ParkingSpot> findByCode(String code);
+
+    Optional<ParkingSpot> findByCodeIgnoreCase(String code);
+
+    boolean existsByCodeIgnoreCase(String code);
 
     List<ParkingSpot> findAllByOrderByCodeAsc();
 

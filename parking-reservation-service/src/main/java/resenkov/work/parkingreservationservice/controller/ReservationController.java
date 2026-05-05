@@ -3,15 +3,19 @@ package resenkov.work.parkingreservationservice.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import resenkov.work.parkingreservationservice.dto.ParkingSpotAvailabilityResponse;
+import resenkov.work.parkingreservationservice.dto.ReservationCatalogResponse;
 import resenkov.work.parkingreservationservice.dto.ReservationRequest;
 import resenkov.work.parkingreservationservice.entity.Reservation;
 import resenkov.work.parkingreservationservice.service.ReservationService;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -105,6 +109,32 @@ public class ReservationController {
         }
         log.info("Получен запрос отмены брони: reservationId={}, email={}", id, principal.getName());
         return ResponseEntity.ok(service.cancelReservation(id, principal.getName()));
+    }
+
+    @GetMapping("/spots/available")
+    public ResponseEntity<List<ParkingSpotAvailabilityResponse>> availableSpots(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(required = false) String zone,
+            @RequestParam(required = false) String level,
+            Principal principal) {
+        if (principal == null) {
+            log.warn("Отклонён запрос поиска свободных мест: отсутствует аутентификация");
+            return ResponseEntity.status(401).build();
+        }
+        log.info("Получен запрос поиска свободных мест: email={}, from={}, to={}, zone={}, level={}",
+                principal.getName(), from, to, zone, level);
+        return ResponseEntity.ok(service.findAvailableSpots(from, to, zone, level));
+    }
+
+    @GetMapping("/catalog")
+    public ResponseEntity<ReservationCatalogResponse> catalog(Principal principal) {
+        if (principal == null) {
+            log.warn("Отклонён запрос каталога парковочных мест: отсутствует аутентификация");
+            return ResponseEntity.status(401).build();
+        }
+        log.info("Получен запрос каталога парковочных мест: email={}", principal.getName());
+        return ResponseEntity.ok(service.getReservationCatalog());
     }
 
     private Long extractUserId(Authentication authentication) {
