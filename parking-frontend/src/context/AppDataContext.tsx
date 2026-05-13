@@ -14,6 +14,7 @@ import type {
   AuthResponse,
   Booking,
   LoginPayload,
+  PaymentInitResponse,
   RegisterPayload,
   ReservationCatalog,
   Session,
@@ -300,18 +301,19 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   const topUp = useCallback(
     async (amount: number) => {
       const activeSession = requireSession()
-      const email = (profile ?? buildFallbackProfile(activeSession)).email
-      await apiRequest(`/api/accounts/${encodeURIComponent(email)}/top-up`, {
+      const payment = await apiRequest<PaymentInitResponse>('/api/payments/top-up/init', {
         method: 'POST',
         token: activeSession.token,
         body: {
-          operationId: `topup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           amount,
         },
       })
-      await Promise.all([refreshWallet(), refreshOperations()])
+      if (!payment.checkoutUrl) {
+        throw new Error('Платежный провайдер не вернул ссылку на оплату')
+      }
+      window.location.assign(payment.checkoutUrl)
     },
-    [buildFallbackProfile, profile, refreshOperations, refreshWallet, requireSession],
+    [requireSession],
   )
 
   const updateProfile = useCallback(

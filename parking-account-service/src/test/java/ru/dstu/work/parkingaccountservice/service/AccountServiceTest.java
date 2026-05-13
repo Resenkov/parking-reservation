@@ -111,6 +111,29 @@ class AccountServiceTest {
         assertThat(billed.getHeldAmount()).isEqualByComparingTo("50.00");
     }
 
+    @Test
+    void shouldCreditConfirmedPaymentIdempotently() {
+        String email = "payment-user@test.com";
+        createAccount(email, BigDecimal.valueOf(100));
+
+        Account credited = accountService.creditFromConfirmedPayment(
+                email,
+                "payment-55-topup",
+                BigDecimal.valueOf(250),
+                55L
+        );
+
+        Account repeated = accountService.creditFromConfirmedPayment(
+                email,
+                "payment-55-topup",
+                BigDecimal.valueOf(250),
+                55L
+        );
+
+        assertThat(credited.getBalance()).isEqualByComparingTo("350.00");
+        assertThat(repeated.getBalance()).isEqualByComparingTo("350.00");
+    }
+
     private long createAccount(String email, BigDecimal balance) {
         jdbcTemplate.update(
                 "INSERT INTO account(user_email, balance, held_amount, status) VALUES (?, ?, ?, ?)",

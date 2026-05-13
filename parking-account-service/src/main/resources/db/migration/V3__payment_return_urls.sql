@@ -1,0 +1,5 @@
+ALTER TABLE IF EXISTS public.payments
+    ADD COLUMN IF NOT EXISTS success_url VARCHAR(1024);
+
+ALTER TABLE IF EXISTS public.payments
+    ADD COLUMN IF NOT EXISTS failure_url VARCHAR(1024);

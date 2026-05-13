@@ -5,6 +5,7 @@ import {
   CreditCard,
   LogOut,
   Search,
+  Settings2,
   UserRound,
 } from 'lucide-react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -13,25 +14,28 @@ import { useAppData } from '../context/AppDataContext'
 import { useAuth } from '../context/AuthContext'
 import { formatMoney } from '../lib/format'
 
-const navigationItems = [
-  { to: '/app/book', label: 'Подбор мест', icon: Search },
-  { to: '/app/bookings', label: 'Мои брони', icon: CalendarRange },
-  { to: '/app/wallet', label: 'Счёт', icon: CreditCard },
-  { to: '/app/profile', label: 'Профиль', icon: UserRound },
-]
-
 const pageTitles: Record<string, { eyebrow: string; title: string }> = {
   '/app/book': { eyebrow: 'Парковка', title: 'Подбор и бронирование мест' },
   '/app/bookings': { eyebrow: 'История', title: 'Мои бронирования' },
   '/app/wallet': { eyebrow: 'Финансы', title: 'Счёт и операции' },
   '/app/profile': { eyebrow: 'Аккаунт', title: 'Личные данные' },
+  '/app/admin': { eyebrow: 'Администрирование', title: 'Настройки и парковочные места' },
 }
 
 export function AppShell() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { signOut } = useAuth()
+  const { signOut, session } = useAuth()
   const { profile, wallet, isInitializing } = useAppData()
+  const isAdmin = session?.roles.includes('ADMIN') ?? false
+
+  const navigationItems = [
+    { to: '/app/book', label: 'Подбор мест', icon: Search },
+    { to: '/app/bookings', label: 'Мои брони', icon: CalendarRange },
+    { to: '/app/wallet', label: 'Счёт', icon: CreditCard },
+    { to: '/app/profile', label: 'Профиль', icon: UserRound },
+    ...(isAdmin ? [{ to: '/app/admin', label: 'Админ', icon: Settings2 }] : []),
+  ]
 
   const pageMeta = pageTitles[location.pathname] ?? pageTitles['/app/book']
   const displayName =
@@ -67,7 +71,7 @@ export function AppShell() {
           </div>
           <div>
             <strong>Единый доступ к парковке</strong>
-            <span>Брони, счёт и история в одном приложении</span>
+            <span>Брони, счёт, история и админские настройки в одном приложении</span>
           </div>
         </div>
 

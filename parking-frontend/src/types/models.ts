@@ -51,6 +51,26 @@ export interface WalletOperation {
   createdAt: string
 }
 
+export interface PaymentInitResponse {
+  paymentId: number
+  amount: number
+  status: string
+  provider: string
+  checkoutUrl: string
+}
+
+export interface PaymentInfo {
+  paymentId: number
+  amount: number
+  status: string
+  provider: string
+  checkoutUrl: string | null
+  createdAt: string
+  updatedAt: string
+  confirmedAt: string | null
+  creditedAt: string | null
+}
+
 export interface SpotAvailability {
   id: number
   code: string
@@ -75,6 +95,86 @@ export interface ReservationZoneOption {
 export interface ReservationCatalog {
   levels: ReservationLevelOption[]
   zones: ReservationZoneOption[]
+}
+
+export interface ParkingLayoutSpot {
+  id: number
+  code: string
+  zone: string | null
+  zoneName: string | null
+  level: string | null
+  price: number
+  occupied: boolean
+  available: boolean
+}
+
+export interface ParkingLayout {
+  generatedAt: string
+  from: string | null
+  to: string | null
+  spots: ParkingLayoutSpot[]
+}
+
+export interface ReservationPolicySettings {
+  bookingStepMinutes: number
+  holdDurationMinutes: number
+  arrivalDeadlineMinutesBeforeEnd: number
+  standardCancellationRefundPercent: number
+  noShowRefundPercent: number
+  maxBookingDurationMinutes: number
+  maxBookingAheadDays: number
+}
+
+export interface ParkingLot {
+  id: number
+  code: string
+  name: string
+  address: string | null
+  active: boolean
+}
+
+export interface ParkingLotPayload {
+  code: string
+  name: string
+  address?: string
+  active: boolean
+}
+
+export interface ParkingZone {
+  id: number
+  lotId: number
+  lotCode: string | null
+  code: string
+  name: string
+  level: string | null
+  active: boolean
+}
+
+export interface ParkingZonePayload {
+  lotId: number
+  code: string
+  name: string
+  level?: string
+  active: boolean
+}
+
+export interface ParkingSpot {
+  id: number
+  zoneId: number
+  zoneCode: string | null
+  zoneName: string | null
+  lotId: number | null
+  lotCode: string | null
+  code: string
+  occupied: boolean
+  price: number
+  level: string | null
+}
+
+export interface ParkingSpotPayload {
+  zoneId: number
+  code: string
+  price: number
 }
 
 export interface SpotSearchInput {

@@ -304,18 +304,20 @@ table {
 
 .auth-visual {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: stretch;
   background:
     radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 28%),
     linear-gradient(180deg, #dff5f2, #eef5fb 46%, #f5f7fa);
 }
 
 .auth-visual__scene {
-  position: absolute;
-  inset: 32px 32px auto 32px;
-  height: 390px;
+  position: relative;
+  inset: auto;
+  height: min(460px, 58vh);
+  min-height: 320px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid rgba(16, 24, 40, 0.08);
@@ -368,7 +370,7 @@ table {
 .auth-visual__content {
   position: relative;
   z-index: 1;
-  width: min(520px, 100%);
+  width: min(560px, 100%);
 }
 
 .auth-kicker,
@@ -1003,6 +1005,11 @@ table {
   border-color: rgba(13, 118, 111, 0.28);
 }
 
+.parking-legend__swatch--unavailable {
+  background: #e6ebf1;
+  border-color: rgba(71, 85, 105, 0.18);
+}
+
 .parking-legend__swatch--limited {
   background: #fff6f5;
   border-color: rgba(180, 35, 24, 0.2);
@@ -1179,6 +1186,25 @@ table {
   background: rgba(180, 35, 24, 0.28);
 }
 
+.parking-slot--unavailable {
+  border-color: rgba(71, 85, 105, 0.12);
+  background: linear-gradient(180deg, #f2f5f8, #ffffff);
+  color: #52606d;
+}
+
+.parking-slot--unavailable::after {
+  background: rgba(71, 85, 105, 0.38);
+}
+
+.parking-slot:disabled {
+  cursor: default;
+}
+
+.parking-slot:disabled:hover {
+  transform: none;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.06);
+}
+
 .parking-slot__code {
   font-size: 16px;
   font-weight: 700;
@@ -1187,6 +1213,140 @@ table {
 .parking-slot__price {
   color: var(--muted);
   font-size: 13px;
+}
+
+.parking-scheme-empty,
+.admin-loading,
+.auth-visual__placeholder {
+  padding: 18px;
+  border-radius: 8px;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.parking-schematic--compact {
+  gap: 12px;
+}
+
+.parking-schematic--compact .parking-legend {
+  gap: 10px;
+}
+
+.parking-schematic--compact .parking-legend__item {
+  font-size: 12px;
+}
+
+.parking-schematic--compact .parking-deck {
+  gap: 12px;
+  padding: 12px;
+}
+
+.parking-schematic--compact .parking-deck__title {
+  margin-top: 8px;
+  font-size: 18px;
+}
+
+.parking-schematic--compact .parking-deck__summary strong {
+  font-size: 18px;
+}
+
+.parking-schematic--compact .parking-row {
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+}
+
+.parking-schematic--compact .parking-slot {
+  min-height: 68px;
+  padding: 10px;
+}
+
+.parking-schematic--compact .parking-slot__code {
+  font-size: 14px;
+}
+
+.parking-schematic--compact .parking-slot__price {
+  font-size: 12px;
+}
+
+.parking-schematic--compact .parking-lane {
+  min-height: 44px;
+  padding-inline: 12px;
+}
+
+.auth-visual__scene {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-visual__scheme {
+  height: 100%;
+  padding: 18px;
+  overflow: auto;
+}
+
+.auth-visual__scheme .parking-legend {
+  gap: 12px;
+}
+
+.auth-visual__scheme .parking-deck {
+  box-shadow: none;
+}
+
+.auth-metrics--secondary {
+  margin-bottom: 18px;
+}
+
+.admin-page {
+  gap: 20px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.admin-form {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-spot-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.85fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.admin-spot-workspace__scheme,
+.admin-spot-workspace__editor {
+  min-width: 0;
+}
+
+.admin-spot-workspace__scheme {
+  max-height: 780px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.selected-spot-card--admin {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(13, 118, 111, 0.92));
+}
+
+.admin-spot-placeholder {
+  padding: 18px;
+  border-radius: 8px;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  color: var(--muted);
+  font-size: 14px;
 }
 
 @media (max-width: 1180px) {
@@ -1199,12 +1359,18 @@ table {
     min-height: 320px;
   }
 
+  .auth-visual__scene {
+    height: 360px;
+  }
+
   .app-shell {
     grid-template-columns: 1fr;
   }
 
   .booking-hero,
-  .booking-workspace {
+  .booking-workspace,
+  .admin-grid,
+  .admin-spot-workspace {
     grid-template-columns: 1fr;
   }
 
@@ -1239,6 +1405,15 @@ table {
   .auth-card,
   .auth-visual {
     padding: 24px;
+  }
+
+  .auth-visual {
+    gap: 18px;
+  }
+
+  .auth-visual__scene {
+    min-height: 280px;
+    height: 320px;
   }
 
   .topbar,

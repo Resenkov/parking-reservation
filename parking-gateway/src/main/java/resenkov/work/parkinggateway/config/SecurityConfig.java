@@ -32,7 +32,14 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/auth/**", "/api/user/add", "/user/add").permitAll()
+                        .pathMatchers(
+                                "/auth/**",
+                                "/api/user/add",
+                                "/user/add",
+                                "/api/reservation/public/**",
+                                "/api/payments/webhook/**",
+                                "/api/mock-payments/**"
+                        ).permitAll()
                         .pathMatchers("/api/user/admin/**", "/api/reservation/admin/**").hasRole("ADMIN")
                         .anyExchange().authenticated()
                 )

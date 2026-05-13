@@ -68,6 +68,48 @@ public class AccountService {
     }
 
     @Transactional
+    public Account creditFromConfirmedPayment(String userEmail,
+                                              String operationId,
+                                              BigDecimal amount,
+                                              Long paymentId) {
+        validateAmount(amount);
+        String normalizedEmail = normalizeEmail(userEmail);
+        log.info(
+                "Crediting confirmed payment: email={}, operationId={}, amount={}, paymentId={}",
+                normalizedEmail,
+                operationId,
+                amount,
+                paymentId
+        );
+
+        Account account = getAccountByUserEmailForUpdate(normalizedEmail);
+        if (operationRepository.findByOperationId(operationId).isPresent()) {
+            log.info("Confirmed payment already credited, operationId={}", operationId);
+            return account;
+        }
+
+        account.setBalance(account.getBalance().add(amount));
+        accountRepository.save(account);
+        saveOperation(
+                operationId,
+                normalizedEmail,
+                account.getUserId(),
+                account.getId(),
+                null,
+                OperationType.TOP_UP,
+                amount,
+                "пополнение через подтвержденный платеж #" + paymentId
+        );
+        log.info(
+                "Confirmed payment credited: accountId={}, paymentId={}, balance={}",
+                account.getId(),
+                paymentId,
+                account.getBalance()
+        );
+        return account;
+    }
+
+    @Transactional
     public Account applyReservationBilling(BillingOperationRequest request) {
         String normalizedEmail = normalizeEmail(request.userEmail());
         log.info(

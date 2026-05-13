@@ -18,6 +18,14 @@ const operationTypeLabels: Record<string, string> = {
   PENALTY: 'Штраф',
 }
 
+const paymentStatusLabels: Record<string, string> = {
+  NEW: 'Создан',
+  PENDING: 'Ожидает оплаты',
+  SUCCEEDED: 'Оплачен',
+  FAILED: 'Ошибка оплаты',
+  CANCELLED: 'Оплата отменена',
+}
+
 const accountStatusLabels: Record<string, string> = {
   OPEN: 'Активен',
   BLOCKED: 'Заблокирован',
@@ -68,12 +76,16 @@ export function formatDuration(totalMinutes: number): string {
 }
 
 export function nextQuarterHour(date = new Date()): Date {
+  return nextTimeStep(date, 15)
+}
+
+export function nextTimeStep(date = new Date(), stepMinutes: number): Date {
   const next = new Date(date)
   next.setSeconds(0, 0)
-  const minutes = next.getMinutes()
-  const delta = (15 - (minutes % 15)) % 15
-  next.setMinutes(minutes + delta)
-  return next
+  const totalMinutes =
+    Math.floor(next.getTime() / 60000) +
+    ((stepMinutes - (Math.floor(next.getTime() / 60000) % stepMinutes)) % stepMinutes)
+  return new Date(totalMinutes * 60000)
 }
 
 export function toDateTimeLocal(date: Date): string {
@@ -91,8 +103,12 @@ export function addMinutes(dateTimeLocal: string, minutes: number): string {
   return toDateTimeLocal(date)
 }
 
-export function calculateSessionAmount(pricePerStep: number, durationMinutes: number): number {
-  return (pricePerStep * durationMinutes) / 15
+export function calculateSessionAmount(
+  pricePerStep: number,
+  durationMinutes: number,
+  bookingStepMinutes = 15,
+): number {
+  return (pricePerStep * durationMinutes) / bookingStepMinutes
 }
 
 export function statusLabel(status: string): string {
@@ -101,6 +117,10 @@ export function statusLabel(status: string): string {
 
 export function operationTypeLabel(type: string): string {
   return operationTypeLabels[type] ?? type
+}
+
+export function paymentStatusLabel(status: string): string {
+  return paymentStatusLabels[status] ?? status
 }
 
 export function accountStatusLabel(status: string | null | undefined): string {

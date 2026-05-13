@@ -22,3 +22,16 @@ export function PublicOnlyRoute({ children }: PropsWithChildren) {
 
   return children
 }
+
+export function AdminRoute({ children }: PropsWithChildren) {
+  const { session } = useAuth()
+
+  if (!session) {
+    return <Navigate to="/login" replace />
+  }
+  if (!session.roles.includes('ADMIN')) {
+    return <Navigate to="/app/book" replace />
+  }
+
+  return children
+}

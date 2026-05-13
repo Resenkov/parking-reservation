@@ -1,15 +1,22 @@
 package ru.dstu.work.parkingaccountservice.controller;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.dstu.work.parkingaccountservice.dto.BillingOperationRequest;
 import ru.dstu.work.parkingaccountservice.dto.CreateWalletRequest;
 import ru.dstu.work.parkingaccountservice.dto.TopUpRequest;
-import ru.dstu.work.parkingaccountservice.entity.AccountOperation;
 import ru.dstu.work.parkingaccountservice.entity.Account;
+import ru.dstu.work.parkingaccountservice.entity.AccountOperation;
+import ru.dstu.work.parkingaccountservice.exception.BadRequestException;
 import ru.dstu.work.parkingaccountservice.service.AccountService;
 
 import java.util.List;
@@ -21,22 +28,28 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+    private final boolean directTopUpEnabled;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService,
+                             @Value("${account.top-up.dev-enabled:false}") boolean directTopUpEnabled) {
         this.accountService = accountService;
+        this.directTopUpEnabled = directTopUpEnabled;
     }
 
     @PostMapping("/wallets")
     public Account createWalletIfAbsent(@Valid @RequestBody CreateWalletRequest request) {
-        log.info("Получен запрос создания/проверки счёта: userId={}, email={}", request.userId(), request.email());
+        log.info("Received create/check wallet request: userId={}, email={}", request.userId(), request.email());
         return accountService.createWalletIfAbsent(request.userId(), request.email());
     }
 
     @PostMapping("/{email}/top-up")
-    public Account topUp(@PathVariable @Email(message = "Email должен быть корректным") String email,
+    public Account topUp(@PathVariable @Email(message = "Email must be valid") String email,
                          @Valid @RequestBody TopUpRequest request) {
+        if (!directTopUpEnabled) {
+            throw new BadRequestException("Прямое пополнение отключено. Используйте платежный сценарий.");
+        }
         log.info(
-                "Получен запрос пополнения счёта: email={}, operationId={}, amount={}",
+                "Received direct top-up request: email={}, operationId={}, amount={}",
                 email,
                 request.operationId(),
                 request.amount()
@@ -47,7 +60,7 @@ public class AccountController {
     @PostMapping({"/reservation-event", "/billing-operations"})
     public Account applyReservationEvent(@Valid @RequestBody BillingOperationRequest request) {
         log.info(
-                "Получен запрос биллинговой операции: operationId={}, reservationId={}, status={}, userEmail={}",
+                "Received billing request: operationId={}, reservationId={}, status={}, userEmail={}",
                 request.operationId(),
                 request.reservationId(),
                 request.status(),
@@ -57,14 +70,14 @@ public class AccountController {
     }
 
     @GetMapping("/{email}")
-    public Account getWallet(@PathVariable @Email(message = "Email должен быть корректным") String email) {
-        log.info("Получен запрос на чтение счёта: email={}", email);
+    public Account getWallet(@PathVariable @Email(message = "Email must be valid") String email) {
+        log.info("Received wallet read request: email={}", email);
         return accountService.getAccount(email);
     }
 
     @GetMapping("/{email}/operations")
-    public List<AccountOperation> history(@PathVariable @Email(message = "Email должен быть корректным") String email) {
-        log.info("Получен запрос истории операций: email={}", email);
+    public List<AccountOperation> history(@PathVariable @Email(message = "Email must be valid") String email) {
+        log.info("Received wallet operations request: email={}", email);
         return accountService.getOperationHistory(email);
     }
 }

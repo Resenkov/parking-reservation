@@ -1,80 +1,65 @@
-import {
-  ArrowRight,
-  Building2,
-  CreditCard,
-  Search,
-  TimerReset,
-} from 'lucide-react'
+import { Building2, CreditCard, Search, TimerReset } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { ParkingScheme } from '../components/ParkingScheme'
 import { EmptyState } from '../components/EmptyState'
 import { StatTile } from '../components/StatTile'
 import { useAppData } from '../context/AppDataContext'
 import { useToast } from '../context/ToastContext'
+import { apiRequest } from '../lib/api'
 import {
   addMinutes,
   calculateSessionAmount,
-  floorLabel,
   formatDateTime,
   formatDuration,
   formatMoney,
-  nextQuarterHour,
+  nextTimeStep,
   statusLabel,
   toDateTimeLocal,
 } from '../lib/format'
-import type { ReservationZoneOption, SpotAvailability, SpotSearchInput } from '../types/models'
+import type {
+  ParkingLayout,
+  ParkingLayoutSpot,
+  ReservationPolicySettings,
+} from '../types/models'
 
-const durationOptions = Array.from({ length: 48 }, (_, index) => (index + 1) * 15)
 const ALL_ZONES = '__ALL_ZONES__'
 
-interface ParkingDeck {
-  code: string
-  name: string | null
-  level: string | null
-  availableSpots: number
-  leftSpots: SpotAvailability[]
-  rightSpots: SpotAvailability[]
+const defaultPolicy: ReservationPolicySettings = {
+  bookingStepMinutes: 15,
+  holdDurationMinutes: 5,
+  arrivalDeadlineMinutesBeforeEnd: 15,
+  standardCancellationRefundPercent: 60,
+  noShowRefundPercent: 0,
+  maxBookingDurationMinutes: 720,
+  maxBookingAheadDays: 7,
 }
 
-function zoneLabel(zone: ReservationZoneOption): string {
-  return `Зона ${zone.code}`
+function isAlignedToStep(value: string, stepMinutes: number): boolean {
+  const date = new Date(value)
+  const totalMinutes = Math.floor(date.getTime() / 60000)
+  return totalMinutes % stepMinutes === 0
 }
 
-function zoneDescription(zone: ReservationZoneOption): string {
-  const floor = floorLabel(zone.level)
-  if (zone.name && zone.name !== zone.code) {
-    return `${zone.name} · ${floor}`
-  }
-  return floor
-}
-
-function splitDeckSpots(spots: SpotAvailability[]) {
-  const midpoint = Math.ceil(spots.length / 2)
-  return {
-    leftSpots: spots.slice(0, midpoint),
-    rightSpots: spots.slice(midpoint),
-  }
+function buildDurationOptions(settings: ReservationPolicySettings): number[] {
+  const steps = Math.floor(settings.maxBookingDurationMinutes / settings.bookingStepMinutes)
+  return Array.from({ length: steps }, (_, index) => (index + 1) * settings.bookingStepMinutes)
 }
 
 export function BookingPage() {
-  const {
-    wallet,
-    bookings,
-    reservationCatalog,
-    refreshReservationCatalog,
-    searchAvailableSpots,
-    bookSpot,
-  } = useAppData()
+  const { wallet, bookings, reservationCatalog, refreshReservationCatalog, bookSpot } = useAppData()
   const { showToast } = useToast()
+  const [policy, setPolicy] = useState<ReservationPolicySettings>(defaultPolicy)
   const [start, setStart] = useState(() =>
-    toDateTimeLocal(nextQuarterHour(new Date(Date.now() + 15 * 60 * 1000))),
+    toDateTimeLocal(nextTimeStep(new Date(Date.now() + defaultPolicy.bookingStepMinutes * 60 * 1000), defaultPolicy.bookingStepMinutes)),
   )
   const [durationMinutes, setDurationMinutes] = useState(60)
   const [selectedZone, setSelectedZone] = useState(ALL_ZONES)
-  const [spots, setSpots] = useState<SpotAvailability[]>([])
+  const [layout, setLayout] = useState<ParkingLayout | null>(null)
   const [hasSearched, setHasSearched] = useState(false)
   const [searching, setSearching] = useState(false)
   const [bookingCode, setBookingCode] = useState<string | null>(null)
   const [selectedSpotCode, setSelectedSpotCode] = useState<string | null>(null)
+  const [policyInitialized, setPolicyInitialized] = useState(false)
 
   useEffect(() => {
     if (reservationCatalog) {
@@ -86,6 +71,48 @@ export function BookingPage() {
       showToast(message, 'error')
     })
   }, [refreshReservationCatalog, reservationCatalog, showToast])
+
+  useEffect(() => {
+    let active = true
+
+    void Promise.all([
+      apiRequest<ReservationPolicySettings>('/api/reservation/public/settings'),
+      apiRequest<ParkingLayout>('/api/reservation/public/layout'),
+    ])
+      .then(([nextPolicy, nextLayout]) => {
+        if (!active) {
+          return
+        }
+        setPolicy(nextPolicy)
+        setLayout(nextLayout)
+      })
+      .catch((error: unknown) => {
+        const message =
+          error instanceof Error ? error.message : 'Не удалось загрузить схему парковки'
+        showToast(message, 'error')
+      })
+
+    return () => {
+      active = false
+    }
+  }, [showToast])
+
+  useEffect(() => {
+    if (policyInitialized) {
+      return
+    }
+    const defaultStart = toDateTimeLocal(
+      nextTimeStep(new Date(Date.now() + policy.bookingStepMinutes * 60 * 1000), policy.bookingStepMinutes),
+    )
+    const defaultDuration = Math.min(
+      Math.max(policy.bookingStepMinutes * 4, policy.bookingStepMinutes),
+      policy.maxBookingDurationMinutes,
+    )
+
+    setStart(defaultStart)
+    setDurationMinutes(defaultDuration)
+    setPolicyInitialized(true)
+  }, [policy, policyInitialized])
 
   const nextBooking = useMemo(() => {
     return [...bookings]
@@ -99,6 +126,7 @@ export function BookingPage() {
   }, [bookings])
 
   const zoneOptions = useMemo(() => reservationCatalog?.zones ?? [], [reservationCatalog])
+  const durationOptions = useMemo(() => buildDurationOptions(policy), [policy])
 
   const effectiveSelectedZone = useMemo(() => {
     if (selectedZone === ALL_ZONES) {
@@ -107,7 +135,7 @@ export function BookingPage() {
     return zoneOptions.some((zone) => zone.code === selectedZone) ? selectedZone : ALL_ZONES
   }, [selectedZone, zoneOptions])
 
-  const searchPayload = useMemo<SpotSearchInput>(() => {
+  const searchPayload = useMemo(() => {
     return {
       from: start,
       to: addMinutes(start, durationMinutes),
@@ -115,17 +143,17 @@ export function BookingPage() {
     }
   }, [durationMinutes, effectiveSelectedZone, start])
 
-  const zoneLookup = useMemo(() => {
-    return new Map(zoneOptions.map((zone) => [zone.code, zone]))
-  }, [zoneOptions])
+  const schemeSpots = useMemo(() => layout?.spots ?? [], [layout?.spots])
 
-  const selectedSpot = useMemo(() => {
-    return spots.find((spot) => spot.code === selectedSpotCode) ?? null
-  }, [selectedSpotCode, spots])
+  const selectedSpot = useMemo<ParkingLayoutSpot | null>(() => {
+    return schemeSpots.find((spot) => spot.code === selectedSpotCode) ?? null
+  }, [schemeSpots, selectedSpotCode])
 
   const selectedSpotAmount = useMemo(() => {
-    return selectedSpot ? calculateSessionAmount(selectedSpot.price, durationMinutes) : 0
-  }, [durationMinutes, selectedSpot])
+    return selectedSpot
+      ? calculateSessionAmount(selectedSpot.price, durationMinutes, policy.bookingStepMinutes)
+      : 0
+  }, [durationMinutes, policy.bookingStepMinutes, selectedSpot])
 
   const isSelectedSpotInsufficient = useMemo(() => {
     if (!selectedSpot) {
@@ -134,48 +162,9 @@ export function BookingPage() {
     return Number(wallet?.balance ?? 0) < selectedSpotAmount
   }, [selectedSpot, selectedSpotAmount, wallet?.balance])
 
-  const parkingDecks = useMemo<ParkingDeck[]>(() => {
-    if (!hasSearched || spots.length === 0) {
-      return []
-    }
-
-    const grouped = new Map<string, SpotAvailability[]>()
-    for (const spot of spots) {
-      const code = spot.zone ?? 'Без зоны'
-      const existing = grouped.get(code)
-      if (existing) {
-        existing.push(spot)
-      } else {
-        grouped.set(code, [spot])
-      }
-    }
-
-    const zoneOrder = new Map(zoneOptions.map((zone, index) => [zone.code, index]))
-
-    return Array.from(grouped.entries())
-      .map(([code, zoneSpots]) => {
-        const orderedSpots = [...zoneSpots].sort((left, right) => left.code.localeCompare(right.code))
-        const split = splitDeckSpots(orderedSpots)
-        const zoneMeta = zoneLookup.get(code)
-
-        return {
-          code,
-          name: zoneMeta?.name ?? null,
-          level: zoneMeta?.level ?? orderedSpots[0]?.level ?? null,
-          availableSpots: orderedSpots.length,
-          leftSpots: split.leftSpots,
-          rightSpots: split.rightSpots,
-        }
-      })
-      .sort((left, right) => {
-        const leftOrder = zoneOrder.get(left.code) ?? Number.MAX_SAFE_INTEGER
-        const rightOrder = zoneOrder.get(right.code) ?? Number.MAX_SAFE_INTEGER
-        if (leftOrder !== rightOrder) {
-          return leftOrder - rightOrder
-        }
-        return left.code.localeCompare(right.code)
-      })
-  }, [hasSearched, spots, zoneLookup, zoneOptions])
+  const availableSpotCount = useMemo(() => {
+    return schemeSpots.filter((spot) => spot.available).length
+  }, [schemeSpots])
 
   function validateSearch() {
     const fromDate = new Date(searchPayload.from)
@@ -185,25 +174,56 @@ export function BookingPage() {
     if (fromDate <= now) {
       throw new Error('Начало брони должно быть позже текущего времени')
     }
-    if (durationMinutes > 720) {
-      throw new Error('Максимальная длительность брони - 12 часов')
+    if (durationMinutes > policy.maxBookingDurationMinutes) {
+      throw new Error(
+        `Максимальная длительность брони - ${formatDuration(policy.maxBookingDurationMinutes)}`,
+      )
     }
-    if (fromDate.getTime() > now.getTime() + 7 * 24 * 60 * 60 * 1000) {
-      throw new Error('Бронирование вперёд доступно максимум на 7 дней')
+    if (
+      fromDate.getTime() >
+      now.getTime() + policy.maxBookingAheadDays * 24 * 60 * 60 * 1000
+    ) {
+      throw new Error(
+        `Бронирование вперёд доступно максимум на ${policy.maxBookingAheadDays} дн.`,
+      )
     }
-    if (fromDate.getMinutes() % 15 !== 0 || toDate.getMinutes() % 15 !== 0) {
-      throw new Error('Шаг бронирования должен быть кратен 15 минутам')
+    if (
+      !isAlignedToStep(searchPayload.from, policy.bookingStepMinutes) ||
+      !isAlignedToStep(searchPayload.to, policy.bookingStepMinutes) ||
+      durationMinutes % policy.bookingStepMinutes !== 0
+    ) {
+      throw new Error(
+        `Шаг бронирования должен быть кратен ${policy.bookingStepMinutes} минутам`,
+      )
     }
+    if (toDate <= fromDate) {
+      throw new Error('Окончание брони должно быть позже начала')
+    }
+  }
+
+  async function loadLayout(withInterval: boolean) {
+    const search = new URLSearchParams()
+    if (withInterval) {
+      search.set('from', searchPayload.from)
+      search.set('to', searchPayload.to)
+      if (searchPayload.zone) {
+        search.set('zone', searchPayload.zone)
+      }
+    }
+
+    return apiRequest<ParkingLayout>(
+      `/api/reservation/public/layout${search.size > 0 ? `?${search.toString()}` : ''}`,
+    )
   }
 
   async function handleSearch() {
     try {
       validateSearch()
       setSearching(true)
-      const nextSpots = await searchAvailableSpots(searchPayload)
+      const nextLayout = await loadLayout(true)
+      setLayout(nextLayout)
       setHasSearched(true)
-      setSpots(nextSpots)
-      setSelectedSpotCode(nextSpots[0]?.code ?? null)
+      setSelectedSpotCode(nextLayout.spots.find((spot) => spot.available)?.code ?? null)
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Не удалось выполнить поиск', 'error')
     } finally {
@@ -219,15 +239,18 @@ export function BookingPage() {
         from: searchPayload.from,
         to: searchPayload.to,
       })
+
       if (booking.status === 'HOLD') {
-        showToast('Место удержано на 5 минут', 'success')
-        return
-      }
-      if (booking.status === 'HOLD_FAILED') {
+        showToast('Место удержано на время подтверждения', 'success')
+      } else if (booking.status === 'HOLD_FAILED') {
         showToast('Не удалось удержать средства для брони', 'error')
-        return
+      } else {
+        showToast(`Бронь создана: ${statusLabel(booking.status)}`, 'success')
       }
-      showToast(`Бронь создана: ${statusLabel(booking.status)}`, 'success')
+
+      const nextLayout = await loadLayout(true)
+      setLayout(nextLayout)
+      setSelectedSpotCode(nextLayout.spots.find((spot) => spot.available)?.code ?? null)
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Не удалось создать бронь', 'error')
     } finally {
@@ -250,10 +273,10 @@ export function BookingPage() {
       <section className="panel panel--elevated booking-hero">
         <div className="booking-hero__copy">
           <p className="eyebrow">Навигация по парковке</p>
-          <h3 className="booking-hero__title">Выберите зону и место на схеме парковки</h3>
+          <h3 className="booking-hero__title">Схема свободных и занятых мест для выбранного интервала</h3>
           <p className="booking-hero__text">
-            Для пользователя остаются только зоны. Каждая зона соответствует своему этажу,
-            а свободные места показываются на схеме с проездом и парковочными рядами.
+            До поиска показывается текущая занятость. После поиска схема переключается на выбранный
+            интервал и оставляет кликабельными только доступные места.
           </p>
         </div>
 
@@ -261,29 +284,32 @@ export function BookingPage() {
           <div className="booking-rule-card">
             <Building2 size={18} />
             <div>
-              <strong>Зоны A, B, C</strong>
-              <span>Выбор выполняется только по существующим зонам парковки</span>
+              <strong>Все места на схеме</strong>
+              <span>Серым отмечены недоступные места, зелёным — доступные к бронированию.</span>
             </div>
           </div>
           <div className="booking-rule-card">
             <TimerReset size={18} />
             <div>
-              <strong>Шаг 15 минут</strong>
-              <span>Интервал и тарификация кратны 15 минутам</span>
+              <strong>Шаг {policy.bookingStepMinutes} минут</strong>
+              <span>Максимум за одну сессию — {formatDuration(policy.maxBookingDurationMinutes)}.</span>
             </div>
           </div>
           <div className="booking-rule-card">
             <CreditCard size={18} />
             <div>
-              <strong>HOLD на 5 минут</strong>
-              <span>Сумма удерживается на время подтверждения брони</span>
+              <strong>Отмена {policy.standardCancellationRefundPercent}%</strong>
+              <span>
+                Неявка наступает за {policy.arrivalDeadlineMinutesBeforeEnd} минут до конца брони,
+                HOLD действует {policy.holdDurationMinutes} минут.
+              </span>
             </div>
           </div>
         </div>
       </section>
 
       <div className="booking-workspace">
-        <section className="panel panel--elevated booking-controls">
+        <section className="panel panel--elevated">
           <div className="panel__header">
             <div>
               <h3 className="panel__title">Параметры поиска</h3>
@@ -334,8 +360,9 @@ export function BookingPage() {
               <Building2 size={16} />
               <span>Зона парковки</span>
             </div>
-            <label className="field">
-              <span>Выберите существующую зону</span>
+
+            <label className="field field--compact">
+              <span>Выберите зону</span>
               <select
                 value={effectiveSelectedZone}
                 onChange={(event) => setSelectedZone(event.target.value)}
@@ -343,7 +370,7 @@ export function BookingPage() {
                 <option value={ALL_ZONES}>Все зоны</option>
                 {zoneOptions.map((zone) => (
                   <option key={zone.code} value={zone.code}>
-                    {zoneLabel(zone)} · {zoneDescription(zone)}
+                    {zone.name ? `${zone.code} · ${zone.name}` : zone.code}
                   </option>
                 ))}
               </select>
@@ -351,55 +378,57 @@ export function BookingPage() {
           </div>
         </section>
 
-        <aside className="panel panel--elevated panel--accent booking-selection">
+        <section className="panel panel--elevated">
           <div className="panel__header">
             <div>
               <h3 className="panel__title">Выбранное место</h3>
               <p className="panel__meta">
-                {selectedSpot ? `${selectedSpot.code} · ${formatDuration(durationMinutes)}` : 'Пока не выбрано'}
+                {hasSearched ? `${availableSpotCount} доступно` : 'Сначала выберите интервал'}
               </p>
             </div>
           </div>
 
           {!selectedSpot ? (
             <EmptyState
-              title="Выберите место на схеме"
-              description="После поиска нажмите на парковочное место, чтобы увидеть стоимость и подтвердить бронь."
+              title={hasSearched ? 'Выберите место на схеме' : 'Поиск ещё не выполнен'}
+              description={
+                hasSearched
+                  ? 'После выбора места здесь появится расчёт суммы и действие бронирования.'
+                  : 'После поиска схема переключится на выбранный интервал.'
+              }
             />
           ) : (
             <div className="booking-selection__body">
               <div className="selected-spot-card">
                 <div className="selected-spot-card__code">{selectedSpot.code}</div>
                 <div className="selected-spot-card__meta">
-                  <span>{selectedSpot.zone ? `Зона ${selectedSpot.zone}` : 'Без зоны'}</span>
-                  <span>{floorLabel(selectedSpot.level)}</span>
+                  <span>{selectedSpot.zoneName ?? selectedSpot.zone ?? 'Без зоны'}</span>
+                  <span>{selectedSpot.level ?? 'Без уровня'}</span>
                 </div>
               </div>
 
               <dl className="booking-detail-list">
                 <div>
-                  <dt>Ставка за 15 минут</dt>
-                  <dd>{formatMoney(selectedSpot.price)}</dd>
+                  <dt>Интервал</dt>
+                  <dd>{formatDuration(durationMinutes)}</dd>
                 </div>
                 <div>
-                  <dt>Сумма за сессию</dt>
+                  <dt>Начало</dt>
+                  <dd>{formatDateTime(searchPayload.from)}</dd>
+                </div>
+                <div>
+                  <dt>Стоимость</dt>
                   <dd>{formatMoney(selectedSpotAmount)}</dd>
                 </div>
                 <div>
-                  <dt>Интервал</dt>
-                  <dd>
-                    {formatDateTime(searchPayload.from)} - {formatDateTime(searchPayload.to)}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Баланс</dt>
+                  <dt>Доступно на счёте</dt>
                   <dd>{formatMoney(wallet?.balance)}</dd>
                 </div>
               </dl>
 
               {isSelectedSpotInsufficient ? (
                 <div className="booking-warning">
-                  На счёте недостаточно средств для предавторизации этой брони.
+                  Недостаточно средств для удержания суммы. Пополните счёт или выберите другое место.
                 </div>
               ) : null}
 
@@ -407,129 +436,44 @@ export function BookingPage() {
                 type="button"
                 className="primary-button primary-button--wide"
                 onClick={() => handleBook(selectedSpot.code)}
-                disabled={bookingCode === selectedSpot.code || isSelectedSpotInsufficient}
+                disabled={
+                  bookingCode === selectedSpot.code ||
+                  isSelectedSpotInsufficient ||
+                  !hasSearched ||
+                  !selectedSpot.available
+                }
               >
-                {bookingCode === selectedSpot.code ? 'Бронирование...' : 'Забронировать место'}
+                <span>{bookingCode === selectedSpot.code ? 'Бронирование...' : 'Забронировать место'}</span>
               </button>
             </div>
           )}
-        </aside>
+        </section>
       </div>
 
       <section className="panel panel--elevated">
         <div className="panel__header">
           <div>
-            <h3 className="panel__title">Схема свободных мест</h3>
-            <p className="panel__meta">{spots.length}</p>
+            <h3 className="panel__title">{hasSearched ? 'Схема мест на интервал' : 'Текущая схема мест'}</h3>
+            <p className="panel__meta">
+              {schemeSpots.length > 0
+                ? `${availableSpotCount} из ${schemeSpots.length} доступны`
+                : 'Места пока не загружены'}
+            </p>
           </div>
         </div>
 
-        {!hasSearched ? (
-          <EmptyState
-            title="Выберите интервал и запустите поиск"
-            description="После этого схема покажет свободные зоны и конкретные парковочные места."
-          />
-        ) : parkingDecks.length === 0 ? (
-          <EmptyState title="Свободные места не найдены" />
+        {schemeSpots.length === 0 ? (
+          <EmptyState title="Схема парковки недоступна" />
         ) : (
-          <div className="parking-schematic">
-            <div className="parking-legend">
-              <span className="parking-legend__item">
-                <span className="parking-legend__swatch parking-legend__swatch--free" />
-                Свободно
-              </span>
-              <span className="parking-legend__item">
-                <span className="parking-legend__swatch parking-legend__swatch--selected" />
-                Выбрано
-              </span>
-              <span className="parking-legend__item">
-                <span className="parking-legend__swatch parking-legend__swatch--limited" />
-                Недостаточно средств
-              </span>
-            </div>
-
-            {parkingDecks.map((deck) => (
-              <article key={deck.code} className="parking-deck">
-                <div className="parking-deck__header">
-                  <div>
-                    <span className="parking-deck__badge">{`Зона ${deck.code}`}</span>
-                    <h4 className="parking-deck__title">
-                      {deck.name && deck.name !== deck.code ? deck.name : floorLabel(deck.level)}
-                    </h4>
-                    <p className="parking-deck__meta">{floorLabel(deck.level)}</p>
-                  </div>
-
-                  <div className="parking-deck__summary">
-                    <strong>{deck.availableSpots}</strong>
-                    <span>свободных мест</span>
-                  </div>
-                </div>
-
-                <div className="parking-deck__body">
-                  <div className="parking-row parking-row--top">
-                    {deck.leftSpots.map((spot) => {
-                      const spotAmount = calculateSessionAmount(spot.price, durationMinutes)
-                      const isSelected = selectedSpotCode === spot.code
-                      const isInsufficient = Number(wallet?.balance ?? 0) < spotAmount
-
-                      return (
-                        <button
-                          key={spot.id}
-                          type="button"
-                          className={
-                            isSelected
-                              ? 'parking-slot parking-slot--selected'
-                              : isInsufficient
-                                ? 'parking-slot parking-slot--limited'
-                                : 'parking-slot'
-                          }
-                          onClick={() => setSelectedSpotCode(spot.code)}
-                        >
-                          <span className="parking-slot__code">{spot.code}</span>
-                          <span className="parking-slot__price">{formatMoney(spotAmount)}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  <div className="parking-lane">
-                    <div className="parking-lane__entry">
-                      <ArrowRight size={16} />
-                      <span>Въезд</span>
-                    </div>
-                    <div className="parking-lane__divider" />
-                    <div className="parking-lane__label">Проезд</div>
-                  </div>
-
-                  <div className="parking-row parking-row--bottom">
-                    {deck.rightSpots.map((spot) => {
-                      const spotAmount = calculateSessionAmount(spot.price, durationMinutes)
-                      const isSelected = selectedSpotCode === spot.code
-                      const isInsufficient = Number(wallet?.balance ?? 0) < spotAmount
-
-                      return (
-                        <button
-                          key={spot.id}
-                          type="button"
-                          className={
-                            isSelected
-                              ? 'parking-slot parking-slot--selected'
-                              : isInsufficient
-                                ? 'parking-slot parking-slot--limited'
-                                : 'parking-slot'
-                          }
-                          onClick={() => setSelectedSpotCode(spot.code)}
-                        >
-                          <span className="parking-slot__code">{spot.code}</span>
-                          <span className="parking-slot__price">{formatMoney(spotAmount)}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+          <ParkingScheme
+            spots={schemeSpots}
+            mode={hasSearched ? 'booking' : 'public'}
+            durationMinutes={durationMinutes}
+            bookingStepMinutes={policy.bookingStepMinutes}
+            selectedSpotCode={selectedSpotCode}
+            walletBalance={wallet?.balance}
+            onSelectSpotCode={hasSearched ? setSelectedSpotCode : undefined}
+          />
         )}
       </section>
     </div>

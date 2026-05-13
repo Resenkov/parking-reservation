@@ -25,10 +25,8 @@ export function WalletPage() {
     try {
       setPending(true)
       await topUp(parsedAmount)
-      setAmount('')
-      showToast('Счёт пополнен', 'success')
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Не удалось пополнить счёт', 'error')
+      showToast(error instanceof Error ? error.message : 'Не удалось пополнить счет', 'error')
     } finally {
       setPending(false)
     }
@@ -39,7 +37,7 @@ export function WalletPage() {
       setRefreshing(true)
       await Promise.all([refreshWallet(), refreshOperations()])
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Не удалось обновить счёт', 'error')
+      showToast(error instanceof Error ? error.message : 'Не удалось обновить счет', 'error')
     } finally {
       setRefreshing(false)
     }
@@ -50,12 +48,15 @@ export function WalletPage() {
       <section className="stats-grid">
         <StatTile label="Доступно" value={formatMoney(wallet?.balance)} />
         <StatTile label="Удержано" value={formatMoney(wallet?.heldAmount)} />
-        <StatTile label="Статус счёта" value={accountStatusLabel(wallet?.status)} />
+        <StatTile label="Статус счета" value={accountStatusLabel(wallet?.status)} />
       </section>
 
       <section className="panel panel--elevated">
         <div className="panel__header">
-          <h3 className="panel__title">Пополнение счёта</h3>
+          <div>
+            <h3 className="panel__title">Пополнение счета</h3>
+            <p className="panel__meta">Баланс меняется только после подтверждения платежа сервером.</p>
+          </div>
         </div>
 
         <form className="inline-form" onSubmit={handleSubmit}>
@@ -73,7 +74,7 @@ export function WalletPage() {
           </label>
 
           <button type="submit" className="primary-button" disabled={pending}>
-            {pending ? 'Пополнение...' : 'Пополнить'}
+            {pending ? 'Подготовка оплаты...' : 'Перейти к оплате'}
           </button>
         </form>
       </section>
