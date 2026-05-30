@@ -33,7 +33,7 @@ public class JwtUtils {
         Map<String, Object> claims = new HashMap<>();
         List<String> roles = userDetails.getAuthorities()
                 .stream()
-                .map(GrantedAuthority::getAuthority) // "ROLE_USER", "ROLE_ADMIN", ...
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         claims.put("roles", roles);
         if (userDetails instanceof User user && user.getId() != null) {
@@ -44,7 +44,7 @@ public class JwtUtils {
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username.equals(userDetails.getUsername())  && !isTokenExpired(token));
     }
 
     private Boolean isTokenExpired(String token) {
@@ -67,7 +67,6 @@ public class JwtUtils {
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
-        //Декодируем в байтовый массив, чтобы сгенерить ключ на основе HMAC
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
