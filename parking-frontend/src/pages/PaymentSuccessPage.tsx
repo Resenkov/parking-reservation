@@ -50,6 +50,7 @@ export function PaymentSuccessPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadPayment(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentId, session?.token])

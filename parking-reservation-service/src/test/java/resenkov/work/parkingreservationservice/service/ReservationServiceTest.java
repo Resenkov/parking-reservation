@@ -306,14 +306,39 @@ class ReservationServiceTest {
     private ReservationService serviceAt(LocalDateTime now, ReservationPolicySettings settings) {
         Clock clock = Clock.fixed(now.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         lenient().when(reservationPolicyService.getSettings()).thenReturn(settings);
-        return new ReservationService(
+        ReservationRules rules = new ReservationRules();
+        ReservationHistoryRecorder historyRecorder = new ReservationHistoryRecorder(historyRepo, clock);
+        ParkingOccupancyService occupancyService = new ParkingOccupancyService(spotRepo, resRepo, clock);
+        ReservationCreationService creationService = new ReservationCreationService(
                 spotRepo,
-                zoneRepo,
                 resRepo,
-                historyRepo,
                 accountServiceClient,
                 reservationPolicyService,
+                rules,
+                historyRecorder,
                 clock
+        );
+        ReservationLifecycleService lifecycleService = new ReservationLifecycleService(
+                resRepo,
+                accountServiceClient,
+                reservationPolicyService,
+                rules,
+                historyRecorder,
+                occupancyService,
+                clock
+        );
+        ReservationCatalogService catalogService = new ReservationCatalogService(
+                spotRepo,
+                zoneRepo,
+                reservationPolicyService,
+                rules,
+                clock
+        );
+        return new ReservationService(
+                resRepo,
+                creationService,
+                lifecycleService,
+                catalogService
         );
     }
 

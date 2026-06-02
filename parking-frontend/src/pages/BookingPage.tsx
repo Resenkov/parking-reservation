@@ -109,9 +109,11 @@ export function BookingPage() {
       policy.maxBookingDurationMinutes,
     )
 
+    /* eslint-disable react-hooks/set-state-in-effect */
     setStart(defaultStart)
     setDurationMinutes(defaultDuration)
     setPolicyInitialized(true)
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [policy, policyInitialized])
 
   const nextBooking = useMemo(() => {
@@ -300,8 +302,7 @@ export function BookingPage() {
             <div>
               <strong>Отмена {policy.standardCancellationRefundPercent}%</strong>
               <span>
-                Неявка наступает за {policy.arrivalDeadlineMinutesBeforeEnd} минут до конца брони,
-                HOLD действует {policy.holdDurationMinutes} минут.
+                Неявка наступает за {policy.arrivalDeadlineMinutesBeforeEnd} минут до конца брони.
               </span>
             </div>
           </div>

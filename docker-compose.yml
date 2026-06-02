@@ -123,7 +123,6 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:postgresql://account-db:5432/postgres
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     ports:
       - "8081:8081"
     depends_on:
@@ -141,7 +140,6 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:postgresql://service-db:5432/postgres
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       ACCOUNT_SERVICE_BASE_URL: http://account-service:8081
     ports:
       - "8082:8082"

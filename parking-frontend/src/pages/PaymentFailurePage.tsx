@@ -16,6 +16,7 @@ export function PaymentFailurePage() {
 
   useEffect(() => {
     if (!session || !Number.isFinite(paymentId)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError('Не удалось определить платеж')
       return
     }

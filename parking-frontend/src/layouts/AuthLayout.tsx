@@ -1,4 +1,4 @@
-import { CarFront, ChevronRight, ShieldCheck } from 'lucide-react'
+import { CarFront, ChevronRight } from 'lucide-react'
 import { type PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { ParkingScheme } from '../components/ParkingScheme'
@@ -110,10 +110,6 @@ export function AuthLayout({ children }: PropsWithChildren) {
           </div>
 
           <div className="auth-visual__content">
-            <div className="auth-kicker">
-              <ShieldCheck size={18} />
-              <span>Свободные и занятые места видны до авторизации</span>
-            </div>
             <h2 className="auth-visual__title">Схема парковки по текущей занятости</h2>
             <div className="auth-metrics">
               <div className="metric-tile">

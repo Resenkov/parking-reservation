@@ -7,14 +7,10 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { ApiError, apiRequest } from '../lib/api'
-import { useAuth } from './AuthContext'
-import { useToast } from './ToastContext'
 import type {
   AuthResponse,
   Booking,
   LoginPayload,
-  PaymentInitResponse,
   RegisterPayload,
   ReservationCatalog,
   Session,
@@ -25,6 +21,24 @@ import type {
   Wallet,
   WalletOperation,
 } from '../types/models'
+import { useAuth } from './AuthContext'
+import { useToast } from './ToastContext'
+import {
+  applyBookingActionRequest,
+  bookSpotRequest,
+  buildFallbackProfile,
+  ensureWallet,
+  initTopUpPayment,
+  loadBookings,
+  loadOperations,
+  loadProfile,
+  loadReservationCatalog,
+  loadWallet,
+  loginRequest,
+  registerRequest,
+  searchAvailableSpotsRequest,
+  updateProfileRequest,
+} from './appDataApi'
 
 interface AppDataContextValue {
   profile: UserProfile | null
@@ -69,105 +83,6 @@ export function AppDataProvider({ children }: PropsWithChildren) {
     return session
   }, [session])
 
-  const buildFallbackProfile = useCallback((activeSession: Session): UserProfile => {
-    return {
-      id: activeSession.userId,
-      email: activeSession.email,
-      firstName: '',
-      lastName: '',
-      roles: activeSession.roles,
-    }
-  }, [])
-
-  const loadProfile = useCallback(
-    async (activeSession: Session): Promise<UserProfile> => {
-      try {
-        const response = await apiRequest<{
-          id?: number
-          email?: string
-          firstName?: string
-          lastName?: string
-          roles?: string[]
-        }>('/api/user/me', {
-          token: activeSession.token,
-        })
-
-        return {
-          id: response.id ?? activeSession.userId,
-          email: response.email ?? activeSession.email,
-          firstName: response.firstName ?? '',
-          lastName: response.lastName ?? '',
-          roles: response.roles?.map((role) => role.replace(/^ROLE_/, '')) ?? activeSession.roles,
-        }
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 401) {
-          throw error
-        }
-        return buildFallbackProfile(activeSession)
-      }
-    },
-    [buildFallbackProfile],
-  )
-
-  const ensureWallet = useCallback(
-    async (activeSession: Session, currentProfile: UserProfile) => {
-      if (!currentProfile.email || currentProfile.id === null) {
-        return
-      }
-
-      await apiRequest<Wallet>('/api/accounts/wallets', {
-        method: 'POST',
-        token: activeSession.token,
-        body: {
-          userId: currentProfile.id,
-          email: currentProfile.email,
-        },
-      })
-    },
-    [],
-  )
-
-  const loadWallet = useCallback(async (activeSession: Session, email: string): Promise<Wallet> => {
-    return apiRequest<Wallet>(`/api/accounts/${encodeURIComponent(email)}`, {
-      token: activeSession.token,
-    })
-  }, [])
-
-  const loadBookings = useCallback(async (activeSession: Session): Promise<Booking[]> => {
-    const response = await apiRequest<Booking[]>('/api/reservation/my', {
-      token: activeSession.token,
-    })
-
-    return response.sort(
-      (left, right) => new Date(left.startTime).getTime() - new Date(right.startTime).getTime(),
-    )
-  }, [])
-
-  const loadOperations = useCallback(
-    async (activeSession: Session, email: string): Promise<WalletOperation[]> => {
-      const response = await apiRequest<WalletOperation[]>(
-        `/api/accounts/${encodeURIComponent(email)}/operations`,
-        {
-          token: activeSession.token,
-        },
-      )
-
-      return response.sort(
-        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
-      )
-    },
-    [],
-  )
-
-  const loadReservationCatalog = useCallback(
-    async (activeSession: Session): Promise<ReservationCatalog> => {
-      return apiRequest<ReservationCatalog>('/api/reservation/catalog', {
-        token: activeSession.token,
-      })
-    },
-    [],
-  )
-
   const refreshAll = useCallback(async () => {
     const activeSession = requireSession()
     setIsInitializing(true)
@@ -191,87 +106,52 @@ export function AppDataProvider({ children }: PropsWithChildren) {
     } finally {
       setIsInitializing(false)
     }
-  }, [
-    ensureWallet,
-    loadBookings,
-    loadOperations,
-    loadProfile,
-    loadReservationCatalog,
-    loadWallet,
-    requireSession,
-  ])
+  }, [requireSession])
 
   const refreshWallet = useCallback(async () => {
     const activeSession = requireSession()
     const currentProfile = profile ?? buildFallbackProfile(activeSession)
     setWallet(await loadWallet(activeSession, currentProfile.email))
-  }, [buildFallbackProfile, loadWallet, profile, requireSession])
+  }, [profile, requireSession])
 
   const refreshBookings = useCallback(async () => {
     const activeSession = requireSession()
     setBookings(await loadBookings(activeSession))
-  }, [loadBookings, requireSession])
+  }, [requireSession])
 
   const refreshOperations = useCallback(async () => {
     const activeSession = requireSession()
     const currentProfile = profile ?? buildFallbackProfile(activeSession)
     setOperations(await loadOperations(activeSession, currentProfile.email))
-  }, [buildFallbackProfile, loadOperations, profile, requireSession])
+  }, [profile, requireSession])
 
   const refreshReservationCatalog = useCallback(async () => {
     const activeSession = requireSession()
     setReservationCatalog(await loadReservationCatalog(activeSession))
-  }, [loadReservationCatalog, requireSession])
+  }, [requireSession])
 
   const refreshFinancialsAndBookings = useCallback(async () => {
     await Promise.all([refreshWallet(), refreshBookings(), refreshOperations()])
   }, [refreshBookings, refreshOperations, refreshWallet])
 
   const login = useCallback(async (payload: LoginPayload) => {
-    return apiRequest<AuthResponse>('/auth/login', {
-      method: 'POST',
-      body: payload,
-    })
+    return loginRequest(payload)
   }, [])
 
   const register = useCallback(async (payload: RegisterPayload) => {
-    return apiRequest<AuthResponse>('/api/user/add', {
-      method: 'POST',
-      body: payload,
-    })
+    return registerRequest(payload)
   }, [])
 
   const searchAvailableSpots = useCallback(
     async (input: SpotSearchInput) => {
-      const activeSession = requireSession()
-      const search = new URLSearchParams({
-        from: input.from,
-        to: input.to,
-      })
-
-      if (input.zone) {
-        search.set('zone', input.zone)
-      }
-      if (input.level) {
-        search.set('level', input.level)
-      }
-
-      return apiRequest<SpotAvailability[]>(
-        `/api/reservation/spots/available?${search.toString()}`,
-        { token: activeSession.token },
-      )
+      return searchAvailableSpotsRequest(requireSession(), input)
     },
     [requireSession],
   )
 
   const bookSpot = useCallback(
     async (payload: { spotCode: string; from: string; to: string }) => {
-      const activeSession = requireSession()
-      const booking = await apiRequest<Booking>('/api/reservation/book', {
-        method: 'POST',
-        token: activeSession.token,
-        body: payload,
-      })
+      const booking = await bookSpotRequest(requireSession(), payload)
       await refreshFinancialsAndBookings()
       return booking
     },
@@ -280,19 +160,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
   const applyBookingAction = useCallback(
     async (id: number, action: 'confirm' | 'activate' | 'complete' | 'cancel') => {
-      const activeSession = requireSession()
-      const pathByAction: Record<typeof action, string> = {
-        confirm: `/api/reservation/${id}/confirm`,
-        activate: `/api/reservation/${id}/activate`,
-        complete: `/api/reservation/${id}/complete`,
-        cancel: `/api/reservation/cancel/${id}`,
-      }
-
-      await apiRequest(pathByAction[action], {
-        method: 'POST',
-        token: activeSession.token,
-      })
-
+      await applyBookingActionRequest(requireSession(), id, action)
       await refreshFinancialsAndBookings()
     },
     [refreshFinancialsAndBookings, requireSession],
@@ -300,14 +168,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
 
   const topUp = useCallback(
     async (amount: number) => {
-      const activeSession = requireSession()
-      const payment = await apiRequest<PaymentInitResponse>('/api/payments/top-up/init', {
-        method: 'POST',
-        token: activeSession.token,
-        body: {
-          amount,
-        },
-      })
+      const payment = await initTopUpPayment(requireSession(), amount)
       if (!payment.checkoutUrl) {
         throw new Error('Платежный провайдер не вернул ссылку на оплату')
       }
@@ -319,14 +180,10 @@ export function AppDataProvider({ children }: PropsWithChildren) {
   const updateProfile = useCallback(
     async (payload: UpdateProfilePayload) => {
       const activeSession = requireSession()
-      await apiRequest('/api/user/update', {
-        method: 'PUT',
-        token: activeSession.token,
-        body: payload,
-      })
+      await updateProfileRequest(activeSession, payload)
       setProfile(await loadProfile(activeSession))
     },
-    [loadProfile, requireSession],
+    [requireSession],
   )
 
   useEffect(() => {
@@ -343,8 +200,7 @@ export function AppDataProvider({ children }: PropsWithChildren) {
     }
 
     void refreshAll().catch((error: unknown) => {
-      const message =
-        error instanceof Error ? error.message : 'Не удалось загрузить данные пользователя'
+      const message = error instanceof Error ? error.message : 'Не удалось загрузить данные пользователя'
       showToast(message, 'error')
     })
   }, [refreshAll, session, showToast])
